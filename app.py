@@ -30,7 +30,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ================= IMAGEN (use su URL si ya la subio) =================
-IUSTITIA_URL = "https://i.imgur.com/3qQZ8Zm.png"  # Cambiela por su imagen
+IUSTITIA_URL = "https://raw.githubusercontent.com/guillermojarqui/uijd-la-fiera/main/Iustitia.jpg"
 
 # ================= LIMPIADOR PARA PDF =================
 def limpiar_para_pdf(texto):
