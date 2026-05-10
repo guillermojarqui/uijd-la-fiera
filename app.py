@@ -15,8 +15,8 @@ import os
 st.markdown("""
     <style>
     .stApp {
-        background: linear-gradient(135deg, #0a192f, #0a2a3a);
-    }
+    background: linear-gradient(135deg, #04182b, #062a3f);
+}
     h1, h2, h3, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
         color: #D4AF37 !important;
     }
@@ -284,7 +284,7 @@ st.set_page_config(page_title="UIJD - Jarquin Legal Intelligence", layout="wide"
 
 col1, col2 = st.columns([1, 3])
 with col1:
-    st.image(IUSTITIA_URL, width=200)
+    st.image(IUSTITIA_URL, width=400)
 with col2:
     st.markdown("""
         <div style="text-align: center;">
