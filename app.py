@@ -11,70 +11,35 @@ import re
 import csv
 import os
 
-# ================= ESTILOS PERSONALIZADOS (FONDO AZUL, LETRAS DORADAS) =================
+# ================= ESTILOS (fondo azul, letras doradas) =================
 st.markdown("""
     <style>
-    /* Fondo azul marino para toda la app */
     .stApp {
         background: linear-gradient(135deg, #0a192f, #0a2a3a);
     }
-    /* Texto general en blanco para contraste */
-    .stMarkdown, .stTextInput, .stButton, .stProgress > div > div, .stAlert, .stInfo, .stWarning, .stSuccess, .stException {
-        color: white !important;
-    }
-    /* Títulos y textos principales dorados */
     h1, h2, h3, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
         color: #D4AF37 !important;
-        font-family: 'Montserrat', 'Georgia', serif;
     }
-    /* Botón principal dorado con texto oscuro */
     .stButton > button {
         background-color: #D4AF37 !important;
         color: #0a192f !important;
-        font-weight: bold !important;
-        border-radius: 30px !important;
-        border: none !important;
-        padding: 10px 20px !important;
-        font-size: 1.2rem !important;
-        transition: all 0.3s ease;
-    }
-    .stButton > button:hover {
-        background-color: #b8860b !important;
-        color: white !important;
-    }
-    /* Input text con borde dorado */
-    .stTextInput > div > div > input {
-        border: 2px solid #D4AF37 !important;
-        border-radius: 20px !important;
-        background-color: rgba(255,255,255,0.1) !important;
-        color: white !important;
-    }
-    /* Expanders y tabs dorados */
-    .streamlit-expanderHeader, .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
-        color: #D4AF37 !important;
-    }
-    hr {
-        border-color: #D4AF37 !important;
+        font-weight: bold;
+        border-radius: 30px;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# ================= IMAGEN DE IUSTITIA (desde URL pública) =================
-# Ver abajo cómo subir tu imagen a GitHub o a un hosting.
-IUSTITIA_URL = "https://i.imgur.com/3qQZ8Zm.png"  # <--- CAMBIÁ ESTO POR LA URL DE TU IMAGEN
-# Para usar la imagen desde GitHub, subila a tu repositorio y poné:
-# IUSTITIA_URL = "https://raw.githubusercontent.com/guillermojarqui/uijd-la-fiera/main/Iustitia.jpg"
+# ================= IMAGEN (use su URL si ya la subio) =================
+IUSTITIA_URL = "https://i.imgur.com/3qQZ8Zm.png"  # Cambiela por su imagen
 
 # ================= LIMPIADOR PARA PDF =================
 def limpiar_para_pdf(texto):
     if not texto:
         return ""
     reemplazos = {
-        "-": "-", "--": "-", '"': '"', "'": "'",
-        "a": "a", "e": "e", "i": "i", "o": "o", "u": "u",
-        "A": "A", "E": "E", "I": "I", "O": "O", "U": "U",
-        "n": "n", "N": "N", "o": "o", "a": "a", "?": "", "!": "",
-        "E": "e", "°": " ", "...": "..."
+        "Ã¡": "a", "Ã©": "e", "Ã­": "i", "Ã³": "o", "Ãº": "u",
+        "Ã": "A", "Ã‰": "E", "Ã": "I", "Ã“": "O", "Ãš": "U",
+        "Ã±": "n", "Ã‘": "N", "Â¿": "", "Â¡": "",
     }
     for original, seguro in reemplazos.items():
         texto = texto.replace(original, seguro)
@@ -82,15 +47,14 @@ def limpiar_para_pdf(texto):
 
 # ================= REGISTRO NACIONAL SIMULADO =================
 def ejecutar_barrido_registro_nacional(nombre_sujeto, status_placeholder):
-    status_placeholder.text("??? Buscando en el Registro Nacional (modo simulado)")
+    status_placeholder.text("Buscando en el Registro Nacional (simulado)")
     resultados_rn = [
         {"nombre_exacto": "Sociedad de Ejemplo S.A.", "entidad": "3-101-654321"},
         {"nombre_exacto": "Inversiones Virtuales Ltda.", "entidad": "3-102-987654"}
     ]
-    status_placeholder.text("? Barrido simulado completado")
+    status_placeholder.text("Barrido simulado completado")
     return resultados_rn
 
-# ================= CLASE DICTAMEN PDF =================
 class DictamenPremium(FPDF):
     def header(self):
         self.set_fill_color(0, 31, 63)
@@ -99,7 +63,7 @@ class DictamenPremium(FPDF):
         self.rect(0, 50, 210, 3, 'F')
         self.set_font('Helvetica', 'B', 20)
         self.set_text_color(184, 134, 11)
-        self.cell(0, 30, 'DICTAMEN DE INTELIGENCIA ESTRATÉGICA', 0, 1, 'C')
+        self.cell(0, 30, 'DICTAMEN DE INTELIGENCIA ESTRATEGICA', 0, 1, 'C')
         self.set_font('Helvetica', 'B', 10)
         self.set_text_color(255, 255, 255)
         self.cell(0, -10, 'JARQUIN LEGAL SERVICES & AI SOLUTIONS | OSINT UNIT', 0, 1, 'C')
@@ -108,9 +72,8 @@ class DictamenPremium(FPDF):
         self.set_y(-15)
         self.set_font('Helvetica', 'I', 8)
         self.set_text_color(150, 150, 150)
-        self.cell(0, 10, f'Documento Confidencial - Página {self.page_no()}', 0, 0, 'C')
+        self.cell(0, 10, f'Documento Confidencial - Pagina {self.page_no()}', 0, 0, 'C')
 
-# ================= CONFIGURACIÓN =================
 SERPER_API_KEY = "97d64a29b4de5ddd082fa1d71cb7374c111e1e22"
 
 def buscar_serper(query, num=10):
@@ -122,7 +85,7 @@ def buscar_serper(query, num=10):
         response.raise_for_status()
         return response.json()
     except Exception as e:
-        st.warning(f"Error en búsqueda: {str(e)[:100]}")
+        st.warning(f"Error en busqueda: {str(e)[:100]}")
         return {}
 
 def extraer_resultados(data):
@@ -145,7 +108,7 @@ def capa_jurisdicciones_opacas(objetivo):
     return extraer_resultados(buscar_serper(query, 8))
 
 def capa_sicop(objetivo):
-    query = f'"{objetivo}" site:sicop.go.cr (adjudicación OR licitación)'
+    query = f'"{objetivo}" site:sicop.go.cr (adjudicacion OR licitacion)'
     return extraer_resultados(buscar_serper(query, 10))
 
 def capa_hacienda(objetivo):
@@ -157,11 +120,11 @@ def capa_jurisprudencia(objetivo):
     return extraer_resultados(buscar_serper(query, 10))
 
 def capa_prensa_riesgo(objetivo):
-    query = f'"{objetivo}" (corrupción OR lavado OR investigación OR fraude) -facebook -instagram'
+    query = f'"{objetivo}" (corrupcion OR lavado OR investigacion OR fraude) -facebook -instagram'
     return extraer_resultados(buscar_serper(query, 12))
 
 def capa_tse(objetivo):
-    query = f'"{objetivo}" site:tse.go.cr (sociedad OR "persona jurídica")'
+    query = f'"{objetivo}" site:tse.go.cr (sociedad OR "persona juridica")'
     return extraer_resultados(buscar_serper(query, 8))
 
 def extraer_cedulas(texto):
@@ -222,7 +185,7 @@ def ejecutar_barrido_completo(objetivo, progress_bar, status_text):
     capas = {
         "ICIJ Offshore Leaks": capa_icij_offshore,
         "Jurisdicciones Opacas": capa_jurisdicciones_opacas,
-        "SICOP - Contratación Pública": capa_sicop,
+        "SICOP - Contratacion Publica": capa_sicop,
         "Hacienda - Morosidad": capa_hacienda,
         "PGR/SCIJ - Jurisprudencia": capa_jurisprudencia,
         "Prensa y Riesgo Reputacional": capa_prensa_riesgo,
@@ -231,7 +194,7 @@ def ejecutar_barrido_completo(objetivo, progress_bar, status_text):
     resultados = {}
     total = len(capas)
     for i, (nombre, func) in enumerate(capas.items()):
-        status_text.text(f"?? Escaneando: {nombre}...")
+        status_text.text(f"Escaneando: {nombre}...")
         resultados[nombre] = func(objetivo)
         progress_bar.progress((i + 1) / total)
         time.sleep(0.3)
@@ -244,16 +207,16 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
     pdf.add_page()
     pdf.set_font("Helvetica", 'B', 18)
     pdf.set_text_color(184, 134, 11)
-    pdf.cell(0, 12, "DICTAMEN DE INTELIGENCIA ESTRATÉGICA", 0, 1, 'C')
+    pdf.cell(0, 12, "DICTAMEN DE INTELIGENCIA ESTRATEGICA", 0, 1, 'C')
     pdf.set_font("Helvetica", 'B', 14)
     pdf.set_text_color(0, 31, 63)
     pdf.cell(0, 10, f"Objetivo: {objetivo.upper()}", 0, 1, 'C')
     pdf.ln(6)
     pdf.set_font("Helvetica", '', 10)
     pdf.set_text_color(0, 0, 0)
-    pdf.cell(0, 6, f"Fecha de emisión: {datetime.now().strftime('%d/%m/%Y %H:%M')}", 0, 1)
+    pdf.cell(0, 6, f"Fecha de emision: {datetime.now().strftime('%d/%m/%Y %H:%M')}", 0, 1)
     verif_id = hashlib.md5((objetivo+str(datetime.now())).encode()).hexdigest()[:8].upper()
-    pdf.cell(0, 6, f"Código de verificación: UIJD-{verif_id}", 0, 1)
+    pdf.cell(0, 6, f"Codigo de verificacion: UIJD-{verif_id}", 0, 1)
     pdf.ln(8)
     pdf.set_font("Helvetica", 'B', 14)
     pdf.set_text_color(184, 134, 11)
@@ -261,7 +224,7 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
     pdf.set_font("Helvetica", '', 11)
     pdf.set_text_color(0, 0, 0)
     total_hallazgos = sum(len(h) for h in resultados.values())
-    pdf.multi_cell(0, 6, f"Se han identificado un total de {total_hallazgos} hallazgos a través de las capas de inteligencia consultadas.")
+    pdf.multi_cell(0, 6, f"Se han identificado un total de {total_hallazgos} hallazgos a traves de las capas de inteligencia consultadas.")
     pdf.ln(4)
     riesgo_score = calcular_mapa_calor(resultados)
     pdf.set_font("Helvetica", 'B', 12)
@@ -269,7 +232,7 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
     pdf.cell(0, 8, "MAPA DE CALOR DE RIESGO", 0, 1)
     pdf.set_font("Helvetica", '', 10)
     pdf.set_text_color(0, 0, 0)
-    pdf.multi_cell(0, 6, f"Puntuación de riesgo: {riesgo_score} / 100")
+    pdf.multi_cell(0, 6, f"Puntuacion de riesgo: {riesgo_score} / 100")
     pdf.ln(4)
     if datos_registro:
         pdf.set_font("Helvetica", 'B', 12)
@@ -290,7 +253,7 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
     pdf.set_text_color(0, 0, 0)
     for capa, hallazgos in resultados.items():
         for h in hallazgos:
-            texto_hallazgo = f"• {h['titulo']}\nFuente: {h['fuente']}\nExtracto: {h['dato']}\n"
+            texto_hallazgo = f"â€¢ {h['titulo']}\nFuente: {h['fuente']}\nExtracto: {h['dato']}\n"
             pdf.multi_cell(0, 8, limpiar_para_pdf(texto_hallazgo))
             pdf.ln(2)
     pdf.add_page()
@@ -301,46 +264,44 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
     pdf.set_font("Helvetica", '', 11)
     pdf.set_text_color(0, 0, 0)
     recs = [
-        "1. Realizar una verificación adicional en el Registro Nacional de las cédulas detectadas.",
+        "1. Realizar una verificacion adicional en el Registro Nacional de las cedulas detectadas.",
         "2. Consultar el expediente judicial en el Poder Judicial para obtener detalles de procesos.",
-        "3. Evaluar la pertinencia de una denuncia ante la UIF si se detectan indicios de legitimación.",
-        "4. Considerar una auditoría forense de nivel IV para profundizar en conexiones offshore."
+        "3. Evaluar la pertinencia de una denuncia ante la UIF si se detectan indicios de legitimacion.",
+        "4. Considerar una auditoria forense de nivel IV para profundizar en conexiones offshore."
     ]
     for r in recs:
         pdf.multi_cell(0, 7, r)
     pdf.ln(20)
     pdf.set_font("Helvetica", 'B', 11)
     pdf.cell(0, 5, "-"*40, 0, 1, 'C')
-    pdf.cell(0, 5, "GUILLERMO JARQUIN NUÑEZ", 0, 1, 'C')
+    pdf.cell(0, 5, "GUILLERMO JARQUIN NUNEZ", 0, 1, 'C')
     pdf.set_font("Helvetica", '', 9)
     pdf.cell(0, 5, "Legal Tech Architect | AI Strategy Consultant", 0, 1, 'C')
     return pdf.output(dest='S')
 
-# ================= DASHBOARD PRINCIPAL (CON LOGO E IMAGEN) =================
-st.set_page_config(page_title="UIJD - Jarquín Legal Intelligence", layout="wide", page_icon="??")
+# ================= DASHBOARD PRINCIPAL =================
+st.set_page_config(page_title="UIJD - Jarquin Legal Intelligence", layout="wide", page_icon=":material/balance:")
 
-# Cabecera con imagen y texto
 col1, col2 = st.columns([1, 3])
 with col1:
     st.image(IUSTITIA_URL, width=200)
 with col2:
     st.markdown("""
         <div style="text-align: center;">
-            <h1 style="color: #D4AF37;">Jarquín Legal Services<br><small style="color: #D4AF37;">& AI Solutions</small></h1>
-            <h2 style="color: #D4AF37;">? INTELIGENCIA ESTRATÉGICA ?</h2>
-            <h3 style="color: #FFE066;">Unidad de Inteligencia Jurídica Digital (UIJD)</h3>
+            <h1 style="color: #D4AF37;">Jarquin Legal Services<br><small style="color: #D4AF37;">& AI Solutions</small></h1>
+            <h2 style="color: #D4AF37;">INTELIGENCIA ESTRATEGICA</h2>
+            <h3 style="color: #FFE066;">Unidad de Inteligencia Juridica Digital (UIJD)</h3>
             <p style="color: #ffffff;">Barrido Forense en 8 Capas - ICIJ + Datos Abiertos Costa Rica</p>
         </div>
     """, unsafe_allow_html=True)
 
 st.markdown("---")
+objetivo = st.text_input("Ingrese nombre completo, cedula o razon social:", placeholder="Ej: Ruben Pacheco Lutz")
 
-objetivo = st.text_input("?? Ingrese nombre completo, cédula o razón social:", placeholder="Ej: Rubén Pacheco Lutz")
-
-if st.button("? INICIAR INVESTIGACIÓN FORENSE", type="primary"):
+if st.button("INICIAR INVESTIGACION FORENSE", type="primary"):
     if objetivo and len(objetivo.strip()) >= 3:
         status_text = st.empty()
-        with st.spinner("Iniciando Motor de Extracción (Registro Nacional)..."):
+        with st.spinner("Iniciando Motor de Extraccion (Registro Nacional)..."):
             datos_rn = ejecutar_barrido_registro_nacional(objetivo, status_text)
         progress_bar = st.progress(0)
         resultados = ejecutar_barrido_completo(objetivo, progress_bar, status_text)
@@ -348,41 +309,41 @@ if st.button("? INICIAR INVESTIGACIÓN FORENSE", type="primary"):
         status_text.empty()
         total_hallazgos = sum(len(v) for v in resultados.values())
         if total_hallazgos == 0:
-            st.warning("?? No se encontraron registros. Se recomienda auditoría manual.")
+            st.warning("No se encontraron registros. Se recomienda auditoria manual.")
         else:
-            st.success(f"? Barrido completado. {total_hallazgos} hallazgos encontrados.")
+            st.success(f"Barrido completado. {total_hallazgos} hallazgos encontrados.")
         riesgo_score = calcular_mapa_calor(resultados)
         if riesgo_score >= 75:
-            nivel = "?? ALTO / CRÍTICO"
+            nivel = "ALTO / CRITICO"
             color = "#d9534f"
-            emoji = "??????"
+            emoji = "ðŸ”¥ðŸ”¥ðŸ”¥"
         elif riesgo_score >= 40:
-            nivel = "?? MODERADO"
+            nivel = "MODERADO"
             color = "#f0ad4e"
-            emoji = "????"
+            emoji = "ðŸ”¥ðŸ”¥"
         else:
-            nivel = "?? BAJO"
+            nivel = "BAJO"
             color = "#5bc0de"
-            emoji = "??"
+            emoji = "ðŸ”¥"
         st.markdown("---")
         st.markdown(f"## {emoji} MAPA DE CALOR DE RIESGO {emoji}")
         col1, col2 = st.columns([2, 1])
         with col1:
-            st.markdown(f"**Puntuación de riesgo:** {riesgo_score} / 100")
+            st.markdown(f"**Puntuacion de riesgo:** {riesgo_score} / 100")
             st.progress(riesgo_score / 100)
         with col2:
             st.markdown(f"<div style='background-color:{color}; padding:10px; border-radius:10px; text-align:center; color:white; font-weight:bold;'>{nivel}</div>", unsafe_allow_html=True)
-        with st.expander("?? ¿Cómo se calcula?"):
+        with st.expander("Como se calcula?"):
             st.markdown("""
-            - **ICIJ Offshore Leaks** (peso 35)  
-            - **Jurisdicciones Opacas** (peso 25)  
-            - **Prensa y Riesgo Reputacional** (peso 20)  
-            - **Hacienda - Morosidad** (peso 10)  
-            - **PGR/SCIJ - Jurisprudencia** (peso 10)  
-            *Si una capa tiene más de 3 hallazgos, aporta el peso completo; si tiene 1-3, aporta la mitad. Máximo 100 puntos.*
+            - **ICIJ Offshore Leaks** (peso 35)
+            - **Jurisdicciones Opacas** (peso 25)
+            - **Prensa y Riesgo Reputacional** (peso 20)
+            - **Hacienda - Morosidad** (peso 10)
+            - **PGR/SCIJ - Jurisprudencia** (peso 10)
+            *Si una capa tiene mas de 3 hallazgos, aporta el peso completo; si tiene 1-3, aporta la mitad. Maximo 100 puntos.*
             """)
         st.markdown("---")
-        tabs = st.tabs(list(resultados.keys()) + ["?? ICIJ", "?? Entidades", "?? Registro Manual"])
+        tabs = st.tabs(list(resultados.keys()) + ["ICIJ", "Entidades", "Registro Manual"])
         for i, (capa, hallazgos) in enumerate(resultados.items()):
             with tabs[i]:
                 if not hallazgos:
@@ -390,35 +351,35 @@ if st.button("? INICIAR INVESTIGACIÓN FORENSE", type="primary"):
                 else:
                     riesgo_capa = "Alto" if len(hallazgos) > 3 else "Medio" if len(hallazgos) > 0 else "Bajo"
                     color_capa = "#d9534f" if riesgo_capa == "Alto" else "#f0ad4e" if riesgo_capa == "Medio" else "#5bc0de"
-                    st.markdown(f"<span style='background-color:{color_capa}; padding:5px 10px; border-radius:15px; color:white;'>Exposición en esta capa: {riesgo_capa}</span>", unsafe_allow_html=True)
+                    st.markdown(f"<span style='background-color:{color_capa}; padding:5px 10px; border-radius:15px; color:white;'>Exposicion en esta capa: {riesgo_capa}</span>", unsafe_allow_html=True)
                     for h in hallazgos:
-                        with st.expander(f"?? {h['titulo'][:80]}"):
+                        with st.expander(f"{h['titulo'][:80]}"):
                             st.markdown(f"**Fuente:** [{h['fuente']}]({h['fuente']})")
                             st.markdown(f"**Hallazgo:** {h['dato']}")
         with tabs[len(resultados)]:
-            st.subheader("?? ICIJ - Offshore Leaks")
+            st.subheader("ICIJ - Offshore Leaks")
             icij_results = buscar_en_icij(objetivo)
             if icij_results:
                 st.dataframe(pd.DataFrame(icij_results))
             else:
                 st.info("No se encontraron coincidencias.")
         with tabs[len(resultados)+1]:
-            st.subheader("?? Entidades extraídas")
+            st.subheader("Entidades extraidas")
             texto_completo = " ".join([h['dato'] for capa in resultados for h in resultados[capa]])
             cedulas = extraer_cedulas(texto_completo)
             nombres = extraer_nombres_personas(texto_completo)
             empresas = extraer_empresas(texto_completo)
             if cedulas:
-                st.write("**Cédulas:**")
+                st.write("**Cedulas:**")
                 for c in cedulas: st.code(c)
-            if nombres: 
+            if nombres:
                 st.write("**Nombres:**")
                 for n in nombres: st.code(n)
             if empresas:
                 st.write("**Empresas:**")
                 for e in empresas: st.code(e)
         with tabs[len(resultados)+2]:
-            st.subheader("?? Registro Nacional Manual")
+            st.subheader("Registro Nacional Manual")
             archivo_csv = "datos_registro_manual.csv"
             if os.path.exists(archivo_csv):
                 st.dataframe(pd.read_csv(archivo_csv, encoding='utf-8-sig'))
@@ -439,15 +400,15 @@ if st.button("? INICIAR INVESTIGACIÓN FORENSE", type="primary"):
                         st.rerun()
         if total_hallazgos > 0:
             df_hallazgos = pd.DataFrame([
-                {"Capa": capa, "Título": h['titulo'], "Fuente": h['fuente'], "Extracto": h['dato']}
+                {"Capa": capa, "Titulo": h['titulo'], "Fuente": h['fuente'], "Extracto": h['dato']}
                 for capa, hallazgos in resultados.items() for h in hallazgos
             ])
             csv_buffer = io.BytesIO()
             df_hallazgos.to_csv(csv_buffer, index=False, encoding='utf-8-sig')
             csv_buffer.seek(0)
             col1, col2 = st.columns(2)
-            col1.download_button("?? CSV", data=csv_buffer, file_name=f"hallazgos_{objetivo}.csv", mime="text/csv")
+            col1.download_button("CSV", data=csv_buffer, file_name=f"hallazgos_{objetivo}.csv", mime="text/csv")
             pdf_bytes = generar_pdf_premium(objetivo, resultados, datos_rn)
-            col2.download_button("?? PDF", data=pdf_bytes, file_name=f"Dictamen_{objetivo}.pdf", mime="application/pdf")
+            col2.download_button("PDF", data=pdf_bytes, file_name=f"Dictamen_{objetivo}.pdf", mime="application/pdf")
     else:
         st.error("Ingrese al menos 3 caracteres.")
