@@ -11,26 +11,32 @@ import re
 import csv
 import os
 
-# ================= ESTILOS (fondo azul, letras doradas) =================
+# ================= INICIALIZAR CONTADOR DE SESIÓN (para claves únicas) =================
+if "download_counter" not in st.session_state:
+    st.session_state.download_counter = 0
+
+# ================= ESTILOS (fondo azul más oscuro) =================
 st.markdown("""
     <style>
     .stApp {
-    background: linear-gradient(135deg, #04182b, #062a3f);
-}
+        background: linear-gradient(135deg, #050b14, #0a1a2a);
+    }
     h1, h2, h3, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
         color: #D4AF37 !important;
     }
     .stButton > button {
         background-color: #D4AF37 !important;
-        color: #0a192f !important;
+        color: #050b14 !important;
         font-weight: bold;
         border-radius: 30px;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# ================= IMAGEN (use su URL si ya la subio) =================
+# ================= IMAGEN DE IUSTITIA (más grande) =================
 IUSTITIA_URL = "https://raw.githubusercontent.com/guillermojarqui/uijd-la-fiera/main/Iustitia.jpg"
+# Ajusta el ancho aquí (por ejemplo 300, 350, etc.)
+ANCHO_IMAGEN = 300
 
 # ================= LIMPIADOR PARA PDF =================
 def limpiar_para_pdf(texto):
@@ -284,7 +290,7 @@ st.set_page_config(page_title="UIJD - Jarquin Legal Intelligence", layout="wide"
 
 col1, col2 = st.columns([1, 3])
 with col1:
-    st.image(IUSTITIA_URL, width=400)
+    st.image(IUSTITIA_URL, width=ANCHO_IMAGEN)
 with col2:
     st.markdown("""
         <div style="text-align: center;">
@@ -300,6 +306,10 @@ objetivo = st.text_input("Ingrese nombre completo, cedula o razon social:", plac
 
 if st.button("INICIAR INVESTIGACION FORENSE", type="primary"):
     if objetivo and len(objetivo.strip()) >= 3:
+        # Incrementar contador para claves únicas de descarga
+        st.session_state.download_counter += 1
+        unique_id = st.session_state.download_counter
+
         status_text = st.empty()
         with st.spinner("Iniciando Motor de Extraccion (Registro Nacional)..."):
             datos_rn = ejecutar_barrido_registro_nacional(objetivo, status_text)
@@ -386,11 +396,11 @@ if st.button("INICIAR INVESTIGACION FORENSE", type="primary"):
             entidades_pendientes = list(cedulas) + list(nombres) + list(empresas)
             for ent in entidades_pendientes[:10]:
                 with st.expander(ent):
-                    nombre_manual = st.text_input("Nombre exacto", key=f"nom_{ent}")
-                    estado_manual = st.selectbox("Estado", ["", "INSCRITA", "MOROSA", "AL DIA"], key=f"est_{ent}")
-                    rep = st.text_area("Representantes", key=f"rep_{ent}")
-                    obs = st.text_area("Observaciones", key=f"obs_{ent}")
-                    if st.button("Guardar", key=f"btn_{ent}"):
+                    nombre_manual = st.text_input("Nombre exacto", key=f"nom_{ent}_{unique_id}")
+                    estado_manual = st.selectbox("Estado", ["", "INSCRITA", "MOROSA", "AL DIA"], key=f"est_{ent}_{unique_id}")
+                    rep = st.text_area("Representantes", key=f"rep_{ent}_{unique_id}")
+                    obs = st.text_area("Observaciones", key=f"obs_{ent}_{unique_id}")
+                    if st.button("Guardar", key=f"btn_{ent}_{unique_id}"):
                         with open(archivo_csv, "a", newline='', encoding='utf-8-sig') as f:
                             writer = csv.writer(f)
                             if os.path.getsize(archivo_csv) == 0:
@@ -407,8 +417,13 @@ if st.button("INICIAR INVESTIGACION FORENSE", type="primary"):
             df_hallazgos.to_csv(csv_buffer, index=False, encoding='utf-8-sig')
             csv_buffer.seek(0)
             col1, col2 = st.columns(2)
-            col1.download_button("CSV", data=csv_buffer, file_name=f"hallazgos_{objetivo}.csv", mime="text/csv")
-            pdf_bytes = generar_pdf_premium(objetivo, resultados, datos_rn)
-            col2.download_button("PDF", data=pdf_bytes, file_name=f"Dictamen_{objetivo}.pdf", mime="application/pdf")
+            col1.download_button("CSV", data=csv_buffer, file_name=f"hallazgos_{objetivo}.csv", mime="text/csv", key=f"csv_{unique_id}")
+            # Generar PDF con manejo de errores
+            try:
+                pdf_bytes = generar_pdf_premium(objetivo, resultados, datos_rn)
+                col2.download_button("PDF", data=pdf_bytes, file_name=f"Dictamen_{objetivo}.pdf", mime="application/pdf", key=f"pdf_{unique_id}")
+            except Exception as e:
+                st.error(f"Error al generar el PDF: {e}")
+                st.info("Intente nuevamente o exporte los datos a CSV.")
     else:
         st.error("Ingrese al menos 3 caracteres.")
