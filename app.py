@@ -221,50 +221,34 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf.ln(20)
 
         # Resumen Ejecutivo
-        pdf.set_font("Helvetica", 'B', 14)
-        pdf.set_text_color(184, 134, 11)
-        pdf.cell(0, 8, "RESUMEN EJECUTIVO", 0, 1)
-        pdf.set_font("Helvetica", '', 11)
-        pdf.set_text_color(0, 0, 0)
-        pdf.multi_cell(0, 8, "Texto de prueba: esta sección de Resumen Ejecutivo está funcionando correctamente.")
-        pdf.ln(5)
+pdf.set_font("Helvetica", 'B', 14)
+pdf.set_text_color(184, 134, 11)
+pdf.cell(0, 8, "RESUMEN EJECUTIVO", 0, 1)
+pdf.set_font("Helvetica", '', 11)
+pdf.set_text_color(0, 0, 0)
+pdf.multi_cell(0, 8, ">>> PRUEBA: El dictamen está escribiendo correctamente en el PDF <<<")
+pdf.ln(5)
 
-        total_hallazgos = sum(len(h) for h in resultados.values())
-        pdf.multi_cell(0, 6, f"Se han identificado un total de {total_hallazgos} hallazgos a través de las capas de inteligencia consultadas.")
-        pdf.ln(4)
+# Hallazgos destacados
+pdf.set_font("Helvetica", 'B', 12)
+pdf.set_text_color(184, 134, 11)
+pdf.cell(0, 8, "HALLAZGOS DESTACADOS", 0, 1)
+pdf.set_font("Helvetica", '', 9)
+pdf.set_text_color(0, 0, 0)
+pdf.multi_cell(0, 8, ">>> PRUEBA: Sección de hallazgos funcionando <<<")
+pdf.ln(5)
 
-        # Hallazgos destacados
-        pdf.set_font("Helvetica", 'B', 12)
-        pdf.set_text_color(184, 134, 11)
-        pdf.cell(0, 8, "HALLAZGOS DESTACADOS", 0, 1)
-        pdf.set_font("Helvetica", '', 9)
-        pdf.set_text_color(0, 0, 0)
-        pdf.multi_cell(0, 8, "Texto de prueba: esta sección de hallazgos está funcionando correctamente.")
-        pdf.ln(5)
+# Recomendaciones
+pdf.add_page()
+pdf.set_font("Helvetica", 'B', 14)
+pdf.set_text_color(184, 134, 11)
+pdf.cell(0, 10, "RECOMENDACIONES Y CIERRE", 0, 1)
+pdf.ln(5)
+pdf.set_font("Helvetica", '', 11)
+pdf.set_text_color(0, 0, 0)
+pdf.multi_cell(0, 8, ">>> PRUEBA: Sección de recomendaciones funcionando <<<")
+pdf.ln(5)
 
-        for capa, hallazgos in resultados.items():
-            if not hallazgos:
-                pdf.multi_cell(0, 8, f"- {capa}: Sin hallazgos")
-                pdf.ln(2)
-            else:
-                for h in hallazgos[:5]:
-                    titulo = limpiar_para_pdf(h.get('titulo', 'Sin titulo'))
-                    fuente = limpiar_para_pdf(h.get('fuente', 'Sin fuente'))
-                    dato = limpiar_para_pdf(h.get('dato', 'Sin contenido'))
-                    texto_hallazgo = f"- {titulo}\nFuente: {fuente}\nExtracto: {dato}\n"
-                    pdf.multi_cell(0, 8, texto_hallazgo)
-                    pdf.ln(2)
-
-        # Recomendaciones
-        pdf.add_page()
-        pdf.set_font("Helvetica", 'B', 14)
-        pdf.set_text_color(184, 134, 11)
-        pdf.cell(0, 10, "RECOMENDACIONES Y CIERRE", 0, 1)
-        pdf.ln(5)
-        pdf.set_font("Helvetica", '', 11)
-        pdf.set_text_color(0, 0, 0)
-        pdf.multi_cell(0, 8, "Texto de prueba: esta sección de Recomendaciones está funcionando correctamente.")
-        pdf.ln(5)
 
         recs = [
             "1. Verificación adicional en el Registro Nacional.",
