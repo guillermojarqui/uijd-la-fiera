@@ -244,25 +244,30 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
                              "Si ves este párrafo, significa que el problema de páginas en blanco está resuelto.")
         pdf.ln(10)
 
-        # Resumen ejecutivo
-        total_hallazgos = sum(len(h) for h in resultados.values())
-        pdf.set_font("Helvetica", 'B', 14)
-        pdf.set_text_color(184, 134, 11)
-        pdf.cell(0, 8, "RESUMEN EJECUTIVO", 0, 1)
-        pdf.set_font("Helvetica", '', 11)
-        pdf.set_text_color(0, 0, 0)
-        pdf.multi_cell(0, 6, f"Se han identificado un total de {total_hallazgos} hallazgos a través de las capas de inteligencia consultadas.")
-        pdf.ln(4)
+        # Resumen Ejecutivo (corregido con texto de prueba)
+pdf.set_font("Helvetica", 'B', 14)
+pdf.set_text_color(184, 134, 11)
+pdf.cell(0, 8, "RESUMEN EJECUTIVO", 0, 1)
+pdf.set_font("Helvetica", '', 11)
+pdf.set_text_color(0, 0, 0)
 
-        # Mapa de calor
-        riesgo_score = calcular_mapa_calor(resultados)
-        pdf.set_font("Helvetica", 'B', 12)
-        pdf.set_text_color(184, 134, 11)
-        pdf.cell(0, 8, "MAPA DE CALOR DE RIESGO", 0, 1)
-        pdf.set_font("Helvetica", '', 10)
-        pdf.set_text_color(0, 0, 0)
-        pdf.multi_cell(0, 6, f"Puntuación de riesgo: {riesgo_score} / 100")
-        pdf.ln(4)
+# Texto fijo de prueba
+pdf.multi_cell(0, 8, "Texto de prueba: esta sección de Resumen Ejecutivo está funcionando correctamente.")
+pdf.ln(5)
+
+total_hallazgos = sum(len(h) for h in resultados.values())
+pdf.multi_cell(0, 6, f"Se han identificado un total de {total_hallazgos} hallazgos a través de las capas de inteligencia consultadas.")
+pdf.ln(4)
+
+riesgo_score = calcular_mapa_calor(resultados)
+pdf.set_font("Helvetica", 'B', 12)
+pdf.set_text_color(184, 134, 11)
+pdf.cell(0, 8, "MAPA DE CALOR DE RIESGO", 0, 1)
+pdf.set_font("Helvetica", '', 10)
+pdf.set_text_color(0, 0, 0)
+pdf.multi_cell(0, 6, f"Puntuación de riesgo: {riesgo_score} / 100")
+pdf.ln(4)
+
 
         # Entidades vinculadas
         if datos_registro:
@@ -303,22 +308,28 @@ for capa, hallazgos in resultados.items():
             pdf.ln(2)
 
 
-        # Recomendaciones
-        pdf.add_page()
-        pdf.set_font("Helvetica", 'B', 14)
-        pdf.set_text_color(184, 134, 11)
-        pdf.cell(0, 10, "RECOMENDACIONES Y CIERRE", 0, 1)
-        pdf.ln(5)
-        pdf.set_font("Helvetica", '', 11)
-        pdf.set_text_color(0, 0, 0)
-        recs = [
-            "1. Verificación adicional en el Registro Nacional.",
-            "2. Consultar expediente judicial en el Poder Judicial.",
-            "3. Evaluar denuncia ante la UIF si hay indicios.",
-            "4. Considerar auditoría forense de nivel IV."
-        ]
-        for r in recs:
-            pdf.multi_cell(0, 7, r)
+        # Recomendaciones (corregido con texto de prueba)
+pdf.add_page()
+pdf.set_font("Helvetica", 'B', 14)
+pdf.set_text_color(184, 134, 11)
+pdf.cell(0, 10, "RECOMENDACIONES Y CIERRE", 0, 1)
+pdf.ln(5)
+pdf.set_font("Helvetica", '', 11)
+pdf.set_text_color(0, 0, 0)
+
+# Texto fijo de prueba
+pdf.multi_cell(0, 8, "Texto de prueba: esta sección de Recomendaciones está funcionando correctamente.")
+pdf.ln(5)
+
+recs = [
+    "1. Verificación adicional en el Registro Nacional.",
+    "2. Consultar expediente judicial en el Poder Judicial.",
+    "3. Evaluar denuncia ante la UIF si hay indicios.",
+    "4. Considerar auditoría forense de nivel IV."
+]
+for r in recs:
+    pdf.multi_cell(0, 7, r)
+
 
         return pdf.output(dest='S')
     except Exception as e:
