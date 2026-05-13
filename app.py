@@ -36,7 +36,7 @@ st.markdown("""
 # ================= IMAGEN DE IUSTITIA (más grande) =================
 IUSTITIA_URL = "https://raw.githubusercontent.com/guillermojarqui/uijd-la-fiera/main/Iustitia.jpg"
 # Ajusta el ancho aquí (por ejemplo 300, 350, etc.)
-ANCHO_IMAGEN = 300
+ANCHO_IMAGEN = 400
 
 # ================= LIMPIADOR PARA PDF =================
 def limpiar_para_pdf(texto):
@@ -209,81 +209,107 @@ def ejecutar_barrido_completo(objetivo, progress_bar, status_text):
 def generar_pdf_premium(objetivo, resultados, datos_registro=None):
     if datos_registro is None:
         datos_registro = []
-    pdf = DictamenPremium()
-    pdf.add_page()
-    pdf.set_font("Helvetica", 'B', 18)
-    pdf.set_text_color(184, 134, 11)
-    pdf.cell(0, 12, "DICTAMEN DE INTELIGENCIA ESTRATEGICA", 0, 1, 'C')
-    pdf.set_font("Helvetica", 'B', 14)
-    pdf.set_text_color(0, 31, 63)
-    pdf.cell(0, 10, f"Objetivo: {objetivo.upper()}", 0, 1, 'C')
-    pdf.ln(6)
-    pdf.set_font("Helvetica", '', 10)
-    pdf.set_text_color(0, 0, 0)
-    pdf.cell(0, 6, f"Fecha de emision: {datetime.now().strftime('%d/%m/%Y %H:%M')}", 0, 1)
-    verif_id = hashlib.md5((objetivo+str(datetime.now())).encode()).hexdigest()[:8].upper()
-    pdf.cell(0, 6, f"Codigo de verificacion: UIJD-{verif_id}", 0, 1)
-    pdf.ln(8)
-    pdf.set_font("Helvetica", 'B', 14)
-    pdf.set_text_color(184, 134, 11)
-    pdf.cell(0, 8, "RESUMEN EJECUTIVO", 0, 1)
-    pdf.set_font("Helvetica", '', 11)
-    pdf.set_text_color(0, 0, 0)
-    total_hallazgos = sum(len(h) for h in resultados.values())
-    pdf.multi_cell(0, 6, f"Se han identificado un total de {total_hallazgos} hallazgos a traves de las capas de inteligencia consultadas.")
-    pdf.ln(4)
-    riesgo_score = calcular_mapa_calor(resultados)
-    pdf.set_font("Helvetica", 'B', 12)
-    pdf.set_text_color(184, 134, 11)
-    pdf.cell(0, 8, "MAPA DE CALOR DE RIESGO", 0, 1)
-    pdf.set_font("Helvetica", '', 10)
-    pdf.set_text_color(0, 0, 0)
-    pdf.multi_cell(0, 6, f"Puntuacion de riesgo: {riesgo_score} / 100")
-    pdf.ln(4)
-    if datos_registro:
-        pdf.set_font("Helvetica", 'B', 12)
+    try:
+        pdf = DictamenPremium()
+        pdf.add_page()
+
+        # Encabezado
+        pdf.set_font("Helvetica", 'B', 18)
         pdf.set_text_color(184, 134, 11)
-        pdf.cell(0, 8, "ENTIDADES VINCULADAS (REGISTRO NACIONAL)", 0, 1)
+        pdf.cell(0, 12, "DICTAMEN DE INTELIGENCIA ESTRATEGICA", 0, 1, 'C')
+
+        pdf.set_font("Helvetica", 'B', 14)
+        pdf.set_text_color(0, 31, 63)
+        pdf.cell(0, 10, f"Objetivo: {objetivo.upper()}", 0, 1, 'C')
+        pdf.ln(6)
+
+        # Fecha y código
         pdf.set_font("Helvetica", '', 10)
         pdf.set_text_color(0, 0, 0)
-        for ent in datos_registro:
-            nombre = ent.get('nombre_exacto', 'N/D')
-            cedula = ent.get('entidad', 'N/D')
-            texto_seguro = limpiar_para_pdf(f"- {nombre} (ID: {cedula})")
-            pdf.multi_cell(0, 5, txt=texto_seguro, border=0, align='L')
+        pdf.cell(0, 6, f"Fecha de emisión: {datetime.now().strftime('%d/%m/%Y %H:%M')}", 0, 1)
+        verif_id = hashlib.md5((objetivo+str(datetime.now())).encode()).hexdigest()[:8].upper()
+        pdf.cell(0, 6, f"Código de verificación: UIJD-{verif_id}", 0, 1)
+        pdf.ln(8)
+
+        # Texto de prueba fijo (para verificar escritura)
+        pdf.set_font("Helvetica", '', 11)
+        pdf.multi_cell(0, 8, "Este es un texto de prueba para confirmar que el PDF escribe correctamente. "
+                             "Si ves este párrafo, significa que el problema de páginas en blanco está resuelto.")
+        pdf.ln(10)
+
+        # Resumen ejecutivo
+        total_hallazgos = sum(len(h) for h in resultados.values())
+        pdf.set_font("Helvetica", 'B', 14)
+        pdf.set_text_color(184, 134, 11)
+        pdf.cell(0, 8, "RESUMEN EJECUTIVO", 0, 1)
+        pdf.set_font("Helvetica", '', 11)
+        pdf.set_text_color(0, 0, 0)
+        pdf.multi_cell(0, 6, f"Se han identificado un total de {total_hallazgos} hallazgos a través de las capas de inteligencia consultadas.")
         pdf.ln(4)
-    pdf.set_font("Helvetica", 'B', 12)
-    pdf.set_text_color(184, 134, 11)
-    pdf.cell(0, 8, "HALLAZGOS DESTACADOS", 0, 1)
-    pdf.set_font("Helvetica", '', 9)
-    pdf.set_text_color(0, 0, 0)
-    for capa, hallazgos in resultados.items():
-        for h in hallazgos:
-            texto_hallazgo = f"• {h['titulo']}\nFuente: {h['fuente']}\nExtracto: {h['dato']}\n"
-            pdf.multi_cell(0, 8, limpiar_para_pdf(texto_hallazgo))
-            pdf.ln(2)
-    pdf.add_page()
-    pdf.set_font("Helvetica", 'B', 14)
-    pdf.set_text_color(184, 134, 11)
-    pdf.cell(0, 10, "RECOMENDACIONES Y CIERRE", 0, 1)
-    pdf.ln(5)
-    pdf.set_font("Helvetica", '', 11)
-    pdf.set_text_color(0, 0, 0)
-    recs = [
-        "1. Realizar una verificacion adicional en el Registro Nacional de las cedulas detectadas.",
-        "2. Consultar el expediente judicial en el Poder Judicial para obtener detalles de procesos.",
-        "3. Evaluar la pertinencia de una denuncia ante la UIF si se detectan indicios de legitimacion.",
-        "4. Considerar una auditoria forense de nivel IV para profundizar en conexiones offshore."
-    ]
-    for r in recs:
-        pdf.multi_cell(0, 7, r)
-    pdf.ln(20)
-    pdf.set_font("Helvetica", 'B', 11)
-    pdf.cell(0, 5, "-"*40, 0, 1, 'C')
-    pdf.cell(0, 5, "GUILLERMO JARQUIN NUNEZ", 0, 1, 'C')
-    pdf.set_font("Helvetica", '', 9)
-    pdf.cell(0, 5, "Legal Tech Architect | AI Strategy Consultant", 0, 1, 'C')
-    return pdf.output(dest='S')
+
+        # Mapa de calor
+        riesgo_score = calcular_mapa_calor(resultados)
+        pdf.set_font("Helvetica", 'B', 12)
+        pdf.set_text_color(184, 134, 11)
+        pdf.cell(0, 8, "MAPA DE CALOR DE RIESGO", 0, 1)
+        pdf.set_font("Helvetica", '', 10)
+        pdf.set_text_color(0, 0, 0)
+        pdf.multi_cell(0, 6, f"Puntuación de riesgo: {riesgo_score} / 100")
+        pdf.ln(4)
+
+        # Entidades vinculadas
+        if datos_registro:
+            pdf.set_font("Helvetica", 'B', 12)
+            pdf.set_text_color(184, 134, 11)
+            pdf.cell(0, 8, "ENTIDADES VINCULADAS (REGISTRO NACIONAL)", 0, 1)
+            pdf.set_font("Helvetica", '', 10)
+            pdf.set_text_color(0, 0, 0)
+            for ent in datos_registro:
+                nombre = ent.get('nombre_exacto', 'N/D')
+                cedula = ent.get('entidad', 'N/D')
+                texto_seguro = limpiar_para_pdf(f"- {nombre} (ID: {cedula})")
+                pdf.multi_cell(0, 5, txt=texto_seguro, border=0, align='L')
+            pdf.ln(4)
+
+        # Hallazgos destacados
+        pdf.set_font("Helvetica", 'B', 12)
+        pdf.set_text_color(184, 134, 11)
+        pdf.cell(0, 8, "HALLAZGOS DESTACADOS", 0, 1)
+        pdf.set_font("Helvetica", '', 9)
+        pdf.set_text_color(0, 0, 0)
+        for capa, hallazgos in resultados.items():
+            for h in hallazgos[:5]:  # limitar a 5 para prueba
+                titulo = limpiar_para_pdf(h.get('titulo', 'Sin titulo'))
+                fuente = limpiar_para_pdf(h.get('fuente', 'Sin fuente'))
+                dato = limpiar_para_pdf(h.get('dato', 'Sin contenido'))
+                texto_hallazgo = f"• {titulo}\nFuente: {fuente}\nExtracto: {dato}\n"
+                pdf.multi_cell(0, 8, texto_hallazgo)
+                pdf.ln(2)
+
+        # Recomendaciones
+        pdf.add_page()
+        pdf.set_font("Helvetica", 'B', 14)
+        pdf.set_text_color(184, 134, 11)
+        pdf.cell(0, 10, "RECOMENDACIONES Y CIERRE", 0, 1)
+        pdf.ln(5)
+        pdf.set_font("Helvetica", '', 11)
+        pdf.set_text_color(0, 0, 0)
+        recs = [
+            "1. Verificación adicional en el Registro Nacional.",
+            "2. Consultar expediente judicial en el Poder Judicial.",
+            "3. Evaluar denuncia ante la UIF si hay indicios.",
+            "4. Considerar auditoría forense de nivel IV."
+        ]
+        for r in recs:
+            pdf.multi_cell(0, 7, r)
+
+        return pdf.output(dest='S')
+    except Exception as e:
+        st.error(f"Error interno al generar el PDF: {e}")
+        import traceback
+        st.code(traceback.format_exc())
+        return None
+
 
 # ================= DASHBOARD PRINCIPAL =================
 st.set_page_config(page_title="UIJD - Jarquin Legal Intelligence", layout="wide", page_icon=":material/balance:")
