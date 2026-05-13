@@ -216,7 +216,8 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         # Encabezado con imagen de Iustitia
         pdf.set_font("Helvetica", 'B', 16)
         pdf.cell(0, 10, "DICTAMEN PREMIUM", 0, 1, 'C')
-        pdf.image("lustitia.jpg", x=10, y=20, w=40)
+        pdf.image("Iustitia.jpg", x=10, y=20, w=40)
+
         pdf.ln(20)
 
         # Resumen Ejecutivo
