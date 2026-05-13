@@ -213,6 +213,13 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf = DictamenPremium()
         pdf.add_page()
 
+        # Imagen de Iustitia en el encabezado
+        try:
+            pdf.image("lustitia.jpg", x=10, y=20, w=40)  # Ajusta posición y tamaño
+        except:
+            pdf.set_font("Helvetica", "I", 8)
+            pdf.cell(0, 10, "Imagen Iustitia no encontrada", ln=True)
+
         # Encabezado
         pdf.set_font("Helvetica", 'B', 18)
         pdf.set_text_color(184, 134, 11)
@@ -231,7 +238,7 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf.cell(0, 6, f"Código de verificación: UIJD-{verif_id}", 0, 1)
         pdf.ln(8)
 
-        # Texto de prueba fijo (para verificar escritura)
+        # Texto de prueba fijo
         pdf.set_font("Helvetica", '', 11)
         pdf.multi_cell(0, 8, "Este es un texto de prueba para confirmar que el PDF escribe correctamente. "
                              "Si ves este párrafo, significa que el problema de páginas en blanco está resuelto.")
@@ -271,7 +278,7 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
                 pdf.multi_cell(0, 5, txt=texto_seguro, border=0, align='L')
             pdf.ln(4)
 
-        # Hallazgos destacados
+        # Hallazgos destacados (corregido: guiones en lugar de viñetas)
         pdf.set_font("Helvetica", 'B', 12)
         pdf.set_text_color(184, 134, 11)
         pdf.cell(0, 8, "HALLAZGOS DESTACADOS", 0, 1)
@@ -282,7 +289,7 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
                 titulo = limpiar_para_pdf(h.get('titulo', 'Sin titulo'))
                 fuente = limpiar_para_pdf(h.get('fuente', 'Sin fuente'))
                 dato = limpiar_para_pdf(h.get('dato', 'Sin contenido'))
-                texto_hallazgo = f"• {titulo}\nFuente: {fuente}\nExtracto: {dato}\n"
+                texto_hallazgo = f"- {titulo}\nFuente: {fuente}\nExtracto: {dato}\n"
                 pdf.multi_cell(0, 8, texto_hallazgo)
                 pdf.ln(2)
 
@@ -309,6 +316,7 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         import traceback
         st.code(traceback.format_exc())
         return None
+
 
 
 # ================= DASHBOARD PRINCIPAL =================
