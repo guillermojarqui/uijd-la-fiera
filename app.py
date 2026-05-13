@@ -327,16 +327,19 @@ recs = [
     "3. Evaluar denuncia ante la UIF si hay indicios.",
     "4. Considerar auditoría forense de nivel IV."
 ]
-for r in recs:
-    pdf.multi_cell(0, 7, r)
+    for r in recs:
+        pdf.multi_cell(0, 7, r)
+
+    # 👇 Este return va alineado con el try, NO dentro del for
+    return pdf.output(dest='S')
+
+except Exception as e:
+    st.error(f"Error interno al generar el PDF: {e}")
+    import traceback
+    st.code(traceback.format_exc())
+    return None
 
 
-        return pdf.output(dest='S')
-    except Exception as e:
-        st.error(f"Error interno al generar el PDF: {e}")
-        import traceback
-        st.code(traceback.format_exc())
-        return None
 
 
 
