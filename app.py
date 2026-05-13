@@ -278,20 +278,30 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
                 pdf.multi_cell(0, 5, txt=texto_seguro, border=0, align='L')
             pdf.ln(4)
 
-        # Hallazgos destacados (corregido: guiones en lugar de viñetas)
-        pdf.set_font("Helvetica", 'B', 12)
-        pdf.set_text_color(184, 134, 11)
-        pdf.cell(0, 8, "HALLAZGOS DESTACADOS", 0, 1)
-        pdf.set_font("Helvetica", '', 9)
-        pdf.set_text_color(0, 0, 0)
-        for capa, hallazgos in resultados.items():
-            for h in hallazgos[:5]:  # limitar a 5 para prueba
-                titulo = limpiar_para_pdf(h.get('titulo', 'Sin titulo'))
-                fuente = limpiar_para_pdf(h.get('fuente', 'Sin fuente'))
-                dato = limpiar_para_pdf(h.get('dato', 'Sin contenido'))
-                texto_hallazgo = f"- {titulo}\nFuente: {fuente}\nExtracto: {dato}\n"
-                pdf.multi_cell(0, 8, texto_hallazgo)
-                pdf.ln(2)
+        # Hallazgos destacados (corregido con texto de prueba)
+pdf.set_font("Helvetica", 'B', 12)
+pdf.set_text_color(184, 134, 11)
+pdf.cell(0, 8, "HALLAZGOS DESTACADOS", 0, 1)
+pdf.set_font("Helvetica", '', 9)
+pdf.set_text_color(0, 0, 0)
+
+# Texto fijo de prueba para confirmar escritura
+pdf.multi_cell(0, 8, "Texto de prueba: esta sección de hallazgos está funcionando correctamente.")
+pdf.ln(5)
+
+for capa, hallazgos in resultados.items():
+    if not hallazgos:
+        pdf.multi_cell(0, 8, f"- {capa}: Sin hallazgos")
+        pdf.ln(2)
+    else:
+        for h in hallazgos[:5]:  # limitar a 5 para prueba
+            titulo = limpiar_para_pdf(h.get('titulo', 'Sin titulo'))
+            fuente = limpiar_para_pdf(h.get('fuente', 'Sin fuente'))
+            dato = limpiar_para_pdf(h.get('dato', 'Sin contenido'))
+            texto_hallazgo = f"- {titulo}\nFuente: {fuente}\nExtracto: {dato}\n"
+            pdf.multi_cell(0, 8, texto_hallazgo)
+            pdf.ln(2)
+
 
         # Recomendaciones
         pdf.add_page()
