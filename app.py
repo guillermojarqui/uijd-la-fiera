@@ -213,131 +213,77 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf = DictamenPremium()
         pdf.add_page()
 
-        # Imagen de Iustitia en el encabezado
-        try:
-            pdf.image("lustitia.jpg", x=10, y=20, w=40)  # Ajusta posición y tamaño
-        except:
-            pdf.set_font("Helvetica", "I", 8)
-            pdf.cell(0, 10, "Imagen Iustitia no encontrada", ln=True)
+        # Encabezado con imagen de Iustitia
+        pdf.set_font("Helvetica", 'B', 16)
+        pdf.cell(0, 10, "DICTAMEN PREMIUM", 0, 1, 'C')
+        pdf.image("lustitia.jpg", x=10, y=20, w=40)
+        pdf.ln(20)
 
-        # Encabezado
-        pdf.set_font("Helvetica", 'B', 18)
-        pdf.set_text_color(184, 134, 11)
-        pdf.cell(0, 12, "DICTAMEN DE INTELIGENCIA ESTRATEGICA", 0, 1, 'C')
-
+        # Resumen Ejecutivo
         pdf.set_font("Helvetica", 'B', 14)
-        pdf.set_text_color(0, 31, 63)
-        pdf.cell(0, 10, f"Objetivo: {objetivo.upper()}", 0, 1, 'C')
-        pdf.ln(6)
-
-        # Fecha y código
-        pdf.set_font("Helvetica", '', 10)
-        pdf.set_text_color(0, 0, 0)
-        pdf.cell(0, 6, f"Fecha de emisión: {datetime.now().strftime('%d/%m/%Y %H:%M')}", 0, 1)
-        verif_id = hashlib.md5((objetivo+str(datetime.now())).encode()).hexdigest()[:8].upper()
-        pdf.cell(0, 6, f"Código de verificación: UIJD-{verif_id}", 0, 1)
-        pdf.ln(8)
-
-        # Texto de prueba fijo
+        pdf.set_text_color(184, 134, 11)
+        pdf.cell(0, 8, "RESUMEN EJECUTIVO", 0, 1)
         pdf.set_font("Helvetica", '', 11)
-        pdf.multi_cell(0, 8, "Este es un texto de prueba para confirmar que el PDF escribe correctamente. "
-                             "Si ves este párrafo, significa que el problema de páginas en blanco está resuelto.")
-        pdf.ln(10)
+        pdf.set_text_color(0, 0, 0)
+        pdf.multi_cell(0, 8, "Texto de prueba: esta sección de Resumen Ejecutivo está funcionando correctamente.")
+        pdf.ln(5)
 
-        # Resumen Ejecutivo (corregido con texto de prueba)
-pdf.set_font("Helvetica", 'B', 14)
-pdf.set_text_color(184, 134, 11)
-pdf.cell(0, 8, "RESUMEN EJECUTIVO", 0, 1)
-pdf.set_font("Helvetica", '', 11)
-pdf.set_text_color(0, 0, 0)
+        total_hallazgos = sum(len(h) for h in resultados.values())
+        pdf.multi_cell(0, 6, f"Se han identificado un total de {total_hallazgos} hallazgos a través de las capas de inteligencia consultadas.")
+        pdf.ln(4)
 
-# Texto fijo de prueba
-pdf.multi_cell(0, 8, "Texto de prueba: esta sección de Resumen Ejecutivo está funcionando correctamente.")
-pdf.ln(5)
+        # Hallazgos destacados
+        pdf.set_font("Helvetica", 'B', 12)
+        pdf.set_text_color(184, 134, 11)
+        pdf.cell(0, 8, "HALLAZGOS DESTACADOS", 0, 1)
+        pdf.set_font("Helvetica", '', 9)
+        pdf.set_text_color(0, 0, 0)
+        pdf.multi_cell(0, 8, "Texto de prueba: esta sección de hallazgos está funcionando correctamente.")
+        pdf.ln(5)
 
-total_hallazgos = sum(len(h) for h in resultados.values())
-pdf.multi_cell(0, 6, f"Se han identificado un total de {total_hallazgos} hallazgos a través de las capas de inteligencia consultadas.")
-pdf.ln(4)
+        for capa, hallazgos in resultados.items():
+            if not hallazgos:
+                pdf.multi_cell(0, 8, f"- {capa}: Sin hallazgos")
+                pdf.ln(2)
+            else:
+                for h in hallazgos[:5]:
+                    titulo = limpiar_para_pdf(h.get('titulo', 'Sin titulo'))
+                    fuente = limpiar_para_pdf(h.get('fuente', 'Sin fuente'))
+                    dato = limpiar_para_pdf(h.get('dato', 'Sin contenido'))
+                    texto_hallazgo = f"- {titulo}\nFuente: {fuente}\nExtracto: {dato}\n"
+                    pdf.multi_cell(0, 8, texto_hallazgo)
+                    pdf.ln(2)
 
-riesgo_score = calcular_mapa_calor(resultados)
-pdf.set_font("Helvetica", 'B', 12)
-pdf.set_text_color(184, 134, 11)
-pdf.cell(0, 8, "MAPA DE CALOR DE RIESGO", 0, 1)
-pdf.set_font("Helvetica", '', 10)
-pdf.set_text_color(0, 0, 0)
-pdf.multi_cell(0, 6, f"Puntuación de riesgo: {riesgo_score} / 100")
-pdf.ln(4)
+        # Recomendaciones
+        pdf.add_page()
+        pdf.set_font("Helvetica", 'B', 14)
+        pdf.set_text_color(184, 134, 11)
+        pdf.cell(0, 10, "RECOMENDACIONES Y CIERRE", 0, 1)
+        pdf.ln(5)
+        pdf.set_font("Helvetica", '', 11)
+        pdf.set_text_color(0, 0, 0)
+        pdf.multi_cell(0, 8, "Texto de prueba: esta sección de Recomendaciones está funcionando correctamente.")
+        pdf.ln(5)
 
+        recs = [
+            "1. Verificación adicional en el Registro Nacional.",
+            "2. Consultar expediente judicial en el Poder Judicial.",
+            "3. Evaluar denuncia ante la UIF si hay indicios.",
+            "4. Considerar auditoría forense de nivel IV."
+        ]
+        for r in recs:
+            pdf.multi_cell(0, 7, r)
 
-        # Entidades vinculadas
-        if datos_registro:
-            pdf.set_font("Helvetica", 'B', 12)
-            pdf.set_text_color(184, 134, 11)
-            pdf.cell(0, 8, "ENTIDADES VINCULADAS (REGISTRO NACIONAL)", 0, 1)
-            pdf.set_font("Helvetica", '', 10)
-            pdf.set_text_color(0, 0, 0)
-            for ent in datos_registro:
-                nombre = ent.get('nombre_exacto', 'N/D')
-                cedula = ent.get('entidad', 'N/D')
-                texto_seguro = limpiar_para_pdf(f"- {nombre} (ID: {cedula})")
-                pdf.multi_cell(0, 5, txt=texto_seguro, border=0, align='L')
-            pdf.ln(4)
+        # 👇 Este return va alineado con el try
+        return pdf.output(dest='S')
 
-        # Hallazgos destacados (corregido con texto de prueba)
-pdf.set_font("Helvetica", 'B', 12)
-pdf.set_text_color(184, 134, 11)
-pdf.cell(0, 8, "HALLAZGOS DESTACADOS", 0, 1)
-pdf.set_font("Helvetica", '', 9)
-pdf.set_text_color(0, 0, 0)
-
-# Texto fijo de prueba para confirmar escritura
-pdf.multi_cell(0, 8, "Texto de prueba: esta sección de hallazgos está funcionando correctamente.")
-pdf.ln(5)
-
-for capa, hallazgos in resultados.items():
-    if not hallazgos:
-        pdf.multi_cell(0, 8, f"- {capa}: Sin hallazgos")
-        pdf.ln(2)
-    else:
-        for h in hallazgos[:5]:  # limitar a 5 para prueba
-            titulo = limpiar_para_pdf(h.get('titulo', 'Sin titulo'))
-            fuente = limpiar_para_pdf(h.get('fuente', 'Sin fuente'))
-            dato = limpiar_para_pdf(h.get('dato', 'Sin contenido'))
-            texto_hallazgo = f"- {titulo}\nFuente: {fuente}\nExtracto: {dato}\n"
-            pdf.multi_cell(0, 8, texto_hallazgo)
-            pdf.ln(2)
+    except Exception as e:
+        st.error(f"Error interno al generar el PDF: {e}")
+        import traceback
+        st.code(traceback.format_exc())
+        return None
 
 
-        # Recomendaciones (corregido con texto de prueba)
-pdf.add_page()
-pdf.set_font("Helvetica", 'B', 14)
-pdf.set_text_color(184, 134, 11)
-pdf.cell(0, 10, "RECOMENDACIONES Y CIERRE", 0, 1)
-pdf.ln(5)
-pdf.set_font("Helvetica", '', 11)
-pdf.set_text_color(0, 0, 0)
-
-# Texto fijo de prueba
-pdf.multi_cell(0, 8, "Texto de prueba: esta sección de Recomendaciones está funcionando correctamente.")
-pdf.ln(5)
-
-recs = [
-    "1. Verificación adicional en el Registro Nacional.",
-    "2. Consultar expediente judicial en el Poder Judicial.",
-    "3. Evaluar denuncia ante la UIF si hay indicios.",
-    "4. Considerar auditoría forense de nivel IV."
-]
-    for r in recs:
-        pdf.multi_cell(0, 7, r)
-
-    # 👇 Este return va alineado con el try, NO dentro del for
-    return pdf.output(dest='S')
-
-except Exception as e:
-    st.error(f"Error interno al generar el PDF: {e}")
-    import traceback
-    st.code(traceback.format_exc())
-    return None
 
 
 
