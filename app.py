@@ -257,7 +257,8 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         for r in recs:
             pdf.multi_cell(0, 7, r)
 
-        return pdf.output(dest='S')
+        return pdf.output(dest='S').encode('latin-1')
+
 
     except Exception as e:
         st.error(f"Error interno al generar el PDF: {e}")
