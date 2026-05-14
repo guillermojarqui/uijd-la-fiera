@@ -396,21 +396,37 @@ if st.button("INICIAR INVESTIGACION FORENSE", type="primary"):
                         st.success("Guardado")
                         st.rerun()
         if total_hallazgos > 0:
-            df_hallazgos = pd.DataFrame([
-                {"Capa": capa, "Titulo": h['titulo'], "Fuente": h['fuente'], "Extracto": h['dato']}
+            df_hallazgos = pd.DataFrame(
+                {"Capa": capa, "Título": h['titulo'], "Fuente": h['fuente'], "Extracto": h['dato']}
                 for capa, hallazgos in resultados.items() for h in hallazgos
-            ])
-            csv_buffer = io.BytesIO()
-            df_hallazgos.to_csv(csv_buffer, index=False, encoding='utf-8-sig')
-            csv_buffer.seek(0)
-            col1, col2 = st.columns(2)
-            col1.download_button("CSV", data=csv_buffer, file_name=f"hallazgos_{objetivo}.csv", mime="text/csv", key=f"csv_{unique_id}")
-            # Generar PDF con manejo de errores
+           )
+           csv_buffer = io.BytesIO()
+           df_hallazgos.to_csv(csv_buffer, index=False, encoding='utf-8-sig')
+           csv_buffer.seek(0)
+           col1, col2 = st.columns(2)
+
+           col1.download_button(
+               "Resultados en CSV",
+               data=csv_buffer,
+               file_name=f"hallazgos_{objetivo}.csv",
+               mime="text/csv",
+               key=f"csv_{unique_id}"
+           )
+
+    # Generar PDF con manejo de errores
             try:
-                pdf_bytes = generar_pdf_premium(objetivo, resultados, datos_rn)
-                col2.download_button("PDF", data=pdf_bytes, file_name=f"Dictamen_{objetivo}.pdf", mime="application/pdf", key=f"pdf_{unique_id}")
-            except Exception as e:
-                st.error(f"Error al generar el PDF: {e}")
-                st.info("Intente nuevamente o exporte los datos a CSV.")
-    else:
-        st.error("Ingrese al menos 3 caracteres.")
+               pdf_bytes = generar_pdf_premium(objetivo, resultados, datos_rn)
+               col2.download_button(
+                   "Dictámen Ejecutivo",
+                   data=pdf_bytes,
+                   file_name=f"Dictamen_{objetivo}.pdf",
+                   mime="application/pdf",
+                   key=f"pdf_{unique_id}"
+               )
+           except Exception as e:
+               st.error(f"Error al generar el PDF: {e}")
+               st.info("Intente nuevamente o exporte los datos a CSV.")
+
+
+
+    
