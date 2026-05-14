@@ -294,9 +294,13 @@ objetivo = st.text_input("Ingrese nombre completo, cedula o razon social:", plac
 
 if st.button("INICIAR INVESTIGACION FORENSE", type="primary"):
     if objetivo and len(objetivo.strip()) >= 3:
-        # Incrementar contador para claves únicas de descarga
-        st.session_state.download_counter += 1
-        unique_id = st.session_state.download_counter
+        # Ejecutar barrido y guardar resultados en session_state
+        datos_rn = ejecutar_barrido_registro_nacional(objetivo, st.empty())
+        resultados = ejecutar_barrido_completo(objetivo, st.progress(0), st.empty())
+        st.session_state["datos_rn"] = datos_rn
+        st.session_state["resultados"] = resultados
+        st.session_state["objetivo"] = objetivo
+
 
         status_text = st.empty()
         with st.spinner("Iniciando Motor de Extraccion (Registro Nacional)..."):
@@ -310,37 +314,41 @@ if st.button("INICIAR INVESTIGACION FORENSE", type="primary"):
             st.warning("No se encontraron registros. Se recomienda auditoria manual.")
         else:
             st.success(f"Barrido completado. {total_hallazgos} hallazgos encontrados.")
-        riesgo_score = calcular_mapa_calor(resultados)
-        if riesgo_score >= 75:
-            nivel = "ALTO / CRITICO"
-            color = "#d9534f"
-            emoji = "🔥🔥🔥"
-        elif riesgo_score >= 40:
-            nivel = "MODERADO"
-            color = "#f0ad4e"
-            emoji = "🔥🔥"
-        else:
-            nivel = "BAJO"
-            color = "#5bc0de"
-            emoji = "🔥"
-        st.markdown("---")
-        st.markdown(f"## {emoji} MAPA DE CALOR DE RIESGO {emoji}")
-        col1, col2 = st.columns([2, 1])
-        with col1:
-            st.markdown(f"**Puntuacion de riesgo:** {riesgo_score} / 100")
-            st.progress(riesgo_score / 100)
-        with col2:
-            st.markdown(f"<div style='background-color:{color}; padding:10px; border-radius:10px; text-align:center; color:white; font-weight:bold;'>{nivel}</div>", unsafe_allow_html=True)
-        with st.expander("Como se calcula?"):
-            st.markdown("""
-            - **ICIJ Offshore Leaks** (peso 35)
-            - **Jurisdicciones Opacas** (peso 25)
-            - **Prensa y Riesgo Reputacional** (peso 20)
-            - **Hacienda - Morosidad** (peso 10)
-            - **PGR/SCIJ - Jurisprudencia** (peso 10)
-            *Si una capa tiene mas de 3 hallazgos, aporta el peso completo; si tiene 1-3, aporta la mitad. Maximo 100 puntos.*
-            """)
-        st.markdown("---")
+            riesgo_score = calcular_mapa_calor(resultados)
+            if riesgo_score >= 75:
+                nivel = "ALTO / CRITICO"
+                color = "#d9534f"
+                emoji = "🔥🔥🔥"
+            elif riesgo_score >= 40:
+                nivel = "MODERADO"
+                color = "#f0ad4e"
+                emoji = "🔥🔥"
+            else:
+                nivel = "BAJO"
+                color = "#5bc0de"
+                emoji = "🔥"
+
+            st.markdown("---")
+            st.markdown(f"## {emoji} MAPA DE CALOR DE RIESGO {emoji}")
+            col1, col2 = st.columns([2, 1])
+            with col1:
+                st.markdown(f"**Puntuacion de riesgo:** {riesgo_score} / 100")
+                st.progress(riesgo_score / 100)
+            with col2:
+                st.markdown(
+                    f"<div style='background-color:{color}; padding:10px; border-radius:10px; text-align:center; color:white; font-weight:bold;'>{nivel}</div>", 
+                    unsafe_allow_html=True
+                )
+            with st.expander("Como se calcula?"):
+                st.markdown("""
+                - **ICIJ Offshore Leaks** (peso 35)
+                - **Jurisdicciones Opacas** (peso 25)
+                - **Prensa y Riesgo Reputacional** (peso 20)
+                - **Hacienda - Morosidad** (peso 10)
+                - **PGR/SCIJ - Jurisprudencia** (peso 10)
+                *Si una capa tiene mas de 3 hallazgos, aporta el peso completo; si tiene 1-3, aporta la mitad. Maximo 100 puntos.*
+                """)
+                st.markdown("---")
         tabs = st.tabs(list(resultados.keys()) + ["ICIJ", "Entidades", "Registro Manual"])
         for i, (capa, hallazgos) in enumerate(resultados.items()):
             with tabs[i]:
