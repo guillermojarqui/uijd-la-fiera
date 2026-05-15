@@ -85,14 +85,26 @@ SERPER_API_KEY = "97d64a29b4de5ddd082fa1d71cb7374c111e1e22"
 def buscar_serper(query, num=10):
     url = "https://google.serper.dev/search"
     headers = {'X-API-KEY': SERPER_API_KEY, 'Content-Type': 'application/json'}
-    payload = json.dumps({"q": query, "gl": "cr", "num": num})
+
+    # Validar que la query no esté vacía
+    if not query or query.strip() == "":
+        st.warning("Query vacía, se omite búsqueda.")
+        return {}
+
+    # Codificar espacios y caracteres especiales
+    payload = json.dumps({"q": urllib.parse.quote(query), "gl": "cr", "num": num})
+
     try:
         response = requests.post(url, headers=headers, data=payload, timeout=15)
         response.raise_for_status()
         return response.json()
-    except Exception as e:
-        st.warning(f"Error en busqueda: {str(e)[:100]}")
+    except requests.exceptions.HTTPError as e:
+        st.error(f"Error HTTP en búsqueda: {e}")
         return {}
+    except Exception as e:
+        st.error(f"Error general en búsqueda: {str(e)[:100]}")
+        return {}
+
 
 def extraer_resultados(data):
     resultados = []
