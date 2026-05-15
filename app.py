@@ -390,6 +390,11 @@ if st.button("INICIAR INVESTIGACION FORENSE", type="primary"):
             if os.path.exists(archivo_csv):
                 st.dataframe(pd.read_csv(archivo_csv, encoding='utf-8-sig'))
             entidades_pendientes = list(cedulas) + list(nombres) + list(empresas)
+            import uuid
+
+            # Generar identificador único para las claves de Streamlit
+            unique_id = str(uuid.uuid4())
+
             for ent in entidades_pendientes[:10]:
                 with st.expander(ent):
                     nombre_manual = st.text_input("Nombre exacto", key=f"nom_{ent}_{unique_id}")
@@ -405,7 +410,7 @@ if st.button("INICIAR INVESTIGACION FORENSE", type="primary"):
                         st.success("Guardado")
                         st.rerun()
 
-                        st.rerun()
+                        
         if total_hallazgos > 0:
             df_hallazgos = pd.DataFrame(
                 {"Capa": capa, "Título": h['titulo'], "Fuente": h['fuente'], "Extracto": h['dato']}
