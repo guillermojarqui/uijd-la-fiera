@@ -10,6 +10,7 @@ from datetime import datetime
 import re
 import csv
 import os
+import urllib.parse
 
 # ================= INICIALIZAR CONTADOR DE SESIÓN (para claves únicas) =================
 if "download_counter" not in st.session_state:
