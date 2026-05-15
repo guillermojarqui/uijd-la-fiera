@@ -393,16 +393,18 @@ if st.button("INICIAR INVESTIGACION FORENSE", type="primary"):
             for ent in entidades_pendientes[:10]:
                 with st.expander(ent):
                     nombre_manual = st.text_input("Nombre exacto", key=f"nom_{ent}_{unique_id}")
-                    estado_manual = st.selectbox("Estado", ["", "INSCRITA", "MOROSA", "AL DIA"], key=f"est_{ent}_{unique_id}")
+                    estado_manual = st.selectbox("Estado", ["", "INSCRITA", "MOROSA", "AL DÍA"], key=f"est_{ent}_{unique_id}")
                     rep = st.text_area("Representantes", key=f"rep_{ent}_{unique_id}")
                     obs = st.text_area("Observaciones", key=f"obs_{ent}_{unique_id}")
                     if st.button("Guardar", key=f"btn_{ent}_{unique_id}"):
                         with open(archivo_csv, "a", newline='', encoding='utf-8-sig') as f:
                             writer = csv.writer(f)
                             if os.path.getsize(archivo_csv) == 0:
-                                writer.writerow(["entidad","nombre_exacto","estado","representantes","observaciones","fecha"])
+                                writer.writerow(["entidad", "nombre_exacto", "estado", "representantes", "observaciones", "fecha"])
                             writer.writerow([ent, nombre_manual, estado_manual, rep, obs, datetime.now().strftime("%Y-%m-%d %H:%M")])
                         st.success("Guardado")
+                        st.rerun()
+
                         st.rerun()
         if total_hallazgos > 0:
             df_hallazgos = pd.DataFrame(
