@@ -216,7 +216,8 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf.set_font("Arial", 'B', 14)
         pdf.cell(0, 10, "DICTAMEN DE INTELIGENCIA ESTRATÉGICA", ln=True, align="C")
 
-        pdf.image("iustitia.jpg", x=10, y=25, w=30)
+        pdf.image("Iustitia.jpg", x=10, y=25, w=30)
+
 
 
         pdf.ln(20)
