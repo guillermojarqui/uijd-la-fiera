@@ -256,10 +256,17 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf.set_font("Helvetica", '', 9)
         pdf.set_text_color(0, 0, 0)
 
-        # Recorrer hallazgos reales desde resultados
+        # Recorrer hallazgos ordenados por capa con subtítulos
         total_hallazgos = sum(len(v) for v in resultados.values())
         if total_hallazgos > 0:
             for capa, hallazgos in resultados.items():
+                # Subtítulo de la capa
+                pdf.set_font("Helvetica", 'B', 11)
+                pdf.set_text_color(0, 0, 0)
+                pdf.cell(0, 8, f"▶ {capa}", 0, 1)
+
+                # Hallazgos dentro de la capa
+                pdf.set_font("Helvetica", '', 9)
                 for h in hallazgos:
                     titulo = limpiar_para_pdf(str(h.get("titulo", "Sin título")))
                     fuente = limpiar_para_pdf(str(h.get("fuente", "Sin fuente")))
@@ -267,8 +274,11 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
                     texto_hallazgo = f"- {titulo}\nFuente: {fuente}\nExtracto: {dato}\n"
                     pdf.multi_cell(0, 8, texto_hallazgo)
                     pdf.ln(2)
+                pdf.ln(4)  # Espacio entre capas
         else:
+            pdf.set_font("Helvetica", '', 9)
             pdf.multi_cell(0, 8, "No se encontraron hallazgos en este barrido.")
+
 
 
 
