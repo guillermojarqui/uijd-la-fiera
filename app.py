@@ -269,43 +269,42 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf.set_font("Helvetica", '', 9)
         pdf.set_text_color(0, 0, 0)
 
-        # Recorrer hallazgos ordenados por capa con subtítulos
-        total_hallazgos = sum(len(v) for v in resultados.values())
-        if total_hallazgos > 0:
-            for capa, hallazgos in resultados.items():
-                # Subtítulo de la capa
-                pdf.set_font("Helvetica", 'B', 11)
-                pdf.set_text_color(0, 0, 0)
-                pdf.cell(0, 8, f"▶ {capa}", 0, 1)
+        # ================= RECOMENDACIONES FORENSES INMEDIATAS =================
+        pdf.set_font("Helvetica", 'B', 12)
+        pdf.set_text_color(184, 134, 11)
+        pdf.cell(0, 8, "RECOMENDACIONES FORENSES INMEDIATAS", 0, 1)
+        pdf.set_font("Helvetica", '', 10)
+        pdf.set_text_color(0, 0, 0)
 
-                # Hallazgos dentro de la capa
-                pdf.set_font("Helvetica", '', 9)
-                for h in hallazgos:
-                    titulo = limpiar_para_pdf(str(h.get("titulo", "Sin título")))
-                    fuente = limpiar_para_pdf(str(h.get("fuente", "Sin fuente")))
-                    dato = limpiar_para_pdf(str(h.get("dato", "Sin contenido")))
-                    texto_hallazgo = f"- {titulo}\nFuente: {fuente}\nExtracto: {dato}\n"
-                    pdf.multi_cell(0, 8, texto_hallazgo)
-                    pdf.ln(2)
-                pdf.ln(4)  # Espacio entre capas
-        else:
-            pdf.set_font("Helvetica", '', 9)
-            pdf.multi_cell(0, 8, "No se encontraron hallazgos en este barrido.")
+        if nivel == "ALTO / CRITICO":
+            recs = [
+                "1. Verificación inmediata en el Registro Nacional.",
+                "2. Consultar expediente judicial en el Poder Judicial.",
+                "3. Evaluar denuncia ante la UIF por indicios críticos.",
+                "4. Considerar auditoría forense de nivel IV.",
+                "5. Monitoreo continuo en prensa y fuentes abiertas."
+            ]
+        elif nivel == "MODERADO":
+            recs = [
+                "1. Seguimiento judicial en procesos abiertos.",
+                "2. Monitoreo periódico en prensa y fuentes abiertas.",
+                "3. Evaluar auditoría forense de nivel II.",
+                "4. Control preventivo en contrataciones públicas."
+            ]   
+        else:  # BAJO
+            recs = [
+                "1. Verificación periódica en el Registro Nacional.",
+                "2. Control preventivo en prensa y fuentes abiertas.",
+                "3. Auditoría ligera de nivel I.",
+                "4. Seguimiento semestral de morosidad y reputación."
+            ]
 
-
-
-
-
-        recs = [
-            "1. Verificación adicional en el Registro Nacional.",
-            "2. Consultar expediente judicial en el Poder Judicial.",
-            "3. Evaluar denuncia ante la UIF si hay indicios.",
-            "4. Considerar auditoría forense de nivel IV."
-        ]
         for r in recs:
             pdf.multi_cell(0, 7, r)
 
-        return pdf.output(dest='S').encode('latin-1')
+        return pdf.output(dest='S').encode('utf-8')
+
+
 
 
     except Exception as e:
