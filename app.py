@@ -154,9 +154,7 @@ def buscar_en_icij(nombre, tipo="entity"):
     url = "https://offshoreleaks.icij.org/api/v1/reconcile"
     params = {"query": nombre, "type": tipo, "limit": 20}
     try:
-        resp = requests.get(url, params=params, timeout=10)
-        resp.raise_for_status()
-        data = resp.json()
+        data = ejecutar_query(nombre)  # NUEVA FUNCIÓN
         resultados = []
         for candidato in data.get("result", []):
             resultados.append({
@@ -169,8 +167,9 @@ def buscar_en_icij(nombre, tipo="entity"):
             })
         return resultados
     except Exception as e:
-        st.warning(f"Error ICIJ: {e}")
+        st.error(f"Error en búsqueda ICIJ: {e}")
         return []
+
 
 def calcular_mapa_calor(resultados):
     puntuacion = 0
