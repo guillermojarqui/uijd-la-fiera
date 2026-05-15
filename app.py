@@ -222,14 +222,32 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
 
         pdf.ln(20)
 
-        # Resumen Ejecutivo
+        # ================= RESUMEN EJECUTIVO =================
         pdf.set_font("Helvetica", 'B', 14)
         pdf.set_text_color(184, 134, 11)
         pdf.cell(0, 8, "RESUMEN EJECUTIVO", 0, 1)
         pdf.set_font("Helvetica", '', 11)
         pdf.set_text_color(0, 0, 0)
-        pdf.multi_cell(0, 8, ">>> PRUEBA: El dictamen está escribiendo correctamente en el PDF <<<")
+
+        total_hallazgos = sum(len(v) for v in resultados.values())
+        riesgo_score = calcular_mapa_calor(resultados)
+
+        if riesgo_score >= 75:
+            nivel = "ALTO / CRITICO"
+        elif riesgo_score >= 40:
+            nivel = "MODERADO"
+        else:
+            nivel = "BAJO"
+
+        texto_resumen = (
+            f"Se identificaron {total_hallazgos} hallazgos relevantes en el barrido forense. "
+            f"El nivel de riesgo calculado es {nivel} con una puntuación de {riesgo_score}/100. "
+            "Se recomienda atención inmediata a las capas críticas."
+        )
+
+        pdf.multi_cell(0, 8, texto_resumen)
         pdf.ln(5)
+
 
         # ================= HALLAZGOS DESTACADOS =================
         pdf.set_font("Helvetica", 'B', 12)
