@@ -213,9 +213,11 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf.add_page()
 
         # Encabezado con imagen de Iustitia
-        pdf.set_font("Helvetica", 'B', 16)
-        pdf.cell(0, 10, "DICTAMEN PREMIUM", 0, 1, 'C')
-        pdf.image("Iustitia.jpg", x=10, y=20, w=40)
+        pdf.set_font("Arial", 'B', 14)
+        pdf.cell(0, 10, "DICTAMEN DE INTELIGENCIA ESTRATÉGICA", ln=True, align="C")
+
+        pdf.image("iustitia.png", x=10, y=20, w=30)  # Ajusta coordenadas
+
         pdf.ln(20)
 
         # Resumen Ejecutivo
@@ -227,25 +229,25 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf.multi_cell(0, 8, ">>> PRUEBA: El dictamen está escribiendo correctamente en el PDF <<<")
         pdf.ln(5)
 
-        # Hallazgos destacados
+        # ================= HALLAZGOS DESTACADOS =================
         pdf.set_font("Helvetica", 'B', 12)
         pdf.set_text_color(184, 134, 11)
         pdf.cell(0, 8, "HALLAZGOS DESTACADOS", 0, 1)
         pdf.set_font("Helvetica", '', 9)
         pdf.set_text_color(0, 0, 0)
-        pdf.multi_cell(0, 8, ">>> PRUEBA: Sección de hallazgos funcionando <<<")
-        pdf.ln(5)
 
-        # Recomendaciones
-        pdf.add_page()
-        pdf.set_font("Helvetica", 'B', 14)
-        pdf.set_text_color(184, 134, 11)
-        pdf.cell(0, 10, "RECOMENDACIONES Y CIERRE", 0, 1)
-        pdf.ln(5)
-        pdf.set_font("Helvetica", '', 11)
-        pdf.set_text_color(0, 0, 0)
-        pdf.multi_cell(0, 8, ">>> PRUEBA: Sección de recomendaciones funcionando <<<")
-        pdf.ln(5)
+        # Recorrer hallazgos reales desde el DataFrame
+        if hallazgos_df is not None and not hallazgos_df.empty:
+            for idx, row in hallazgos_df.iterrows():
+                titulo = limpiar_para_pdf(str(row.get("titulo", "Sin título")))
+                fuente = limpiar_para_pdf(str(row.get("fuente", "Sin fuente")))
+                dato = limpiar_para_pdf(str(row.get("dato", "Sin contenido")))
+                texto_hallazgo = f"- {titulo}\nFuente: {fuente}\nExtracto: {dato}\n"
+                pdf.multi_cell(0, 8, texto_hallazgo)
+                pdf.ln(2)
+        else:
+            pdf.multi_cell(0, 8, "No se encontraron hallazgos en este barrido.")
+
 
         recs = [
             "1. Verificación adicional en el Registro Nacional.",
