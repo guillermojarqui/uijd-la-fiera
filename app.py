@@ -237,17 +237,21 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf.set_font("Helvetica", '', 9)
         pdf.set_text_color(0, 0, 0)
 
-        # Recorrer hallazgos reales desde el DataFrame
-        if hallazgos_df is not None and not hallazgos_df.empty:
-            for idx, row in hallazgos_df.iterrows():
-                titulo = limpiar_para_pdf(str(row.get("titulo", "Sin título")))
-                fuente = limpiar_para_pdf(str(row.get("fuente", "Sin fuente")))
-                dato = limpiar_para_pdf(str(row.get("dato", "Sin contenido")))
-                texto_hallazgo = f"- {titulo}\nFuente: {fuente}\nExtracto: {dato}\n"
-                pdf.multi_cell(0, 8, texto_hallazgo)
-                pdf.ln(2)
+        # Recorrer hallazgos reales desde resultados
+        total_hallazgos = sum(len(v) for v in resultados.values())
+        if total_hallazgos > 0:
+            for capa, hallazgos in resultados.items():
+                for h in hallazgos:
+                    titulo = limpiar_para_pdf(str(h.get("titulo", "Sin título")))
+                    fuente = limpiar_para_pdf(str(h.get("fuente", "Sin fuente")))
+                    dato = limpiar_para_pdf(str(h.get("dato", "Sin contenido")))
+                    texto_hallazgo = f"- {titulo}\nFuente: {fuente}\nExtracto: {dato}\n"
+                    pdf.multi_cell(0, 8, texto_hallazgo)
+                    pdf.ln(2)
         else:
             pdf.multi_cell(0, 8, "No se encontraron hallazgos en este barrido.")
+
+
 
 
         recs = [
