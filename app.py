@@ -290,9 +290,10 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
             pdf.multi_cell(0, 6, f"▶ {capa}")
             pdf.set_font("DejaVu", '', 9)
 
-            for h in hallazgos:
-                pdf.multi_cell(0, 5, f"- {h}")
-            pdf.ln(3)
+        for h in hallazgos:
+            texto = str(h).strip() if h else "Sin contenido"
+            pdf.multi_cell(0, 5, f"- {texto}")
+
 
         # ================= RECOMENDACIONES FORENSES INMEDIATAS =================
         pdf.set_font("DejaVu", '', 12)
