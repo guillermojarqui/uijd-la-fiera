@@ -1,4 +1,5 @@
-streamlit
+streamlit==1.34.0
+fpdf2==2.7.8
 pandas
+numpy
 requests
-fpdf
