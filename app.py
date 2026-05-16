@@ -294,10 +294,10 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
 
             pdf.set_font("DejaVu", '', 9)
             for h in hallazgos:
-            texto = str(h).strip() if h else "Sin contenido"
-            texto = re.sub(r'[^\x20-\x7E\u00A0-\uFFFF]', '', texto)
-            pdf.multi_cell(180, 5, f"- {texto}")
-        pdf.ln(3)
+                texto = str(h).strip() if h else "Sin contenido"
+                texto = re.sub(r'[^\x20-\x7E\u00A0-\uFFFF]', '', texto)
+                pdf.multi_cell(180, 5, f"- {texto}")
+            pdf.ln(3)
 
 
         for h in hallazgos:
