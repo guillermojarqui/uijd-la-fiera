@@ -11,6 +11,15 @@ import re
 import csv
 import os
 import urllib.parse
+import streamlit as st
+import pandas as pd
+import numpy as np
+# otros imports...
+
+st.set_page_config(
+    page_title="UIJD – Jarquín legal Intelligence",
+    layout="wide"
+)
 
 # ================= INICIALIZAR CONTADOR DE SESIÓN (para claves únicas) =================
 if "download_counter" not in st.session_state:
