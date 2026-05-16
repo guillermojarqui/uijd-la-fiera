@@ -269,6 +269,14 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf.cell(0, 8, "HALLAZGOS DESTACADOS", 0, 1)
         pdf.set_font("Helvetica", '', 9)
         pdf.set_text_color(0, 0, 0)
+    for capa, hallazgos in resultados.items():
+        pdf.set_font("Helvetica", 'B', 10)
+        pdf.multi_cell(0, 6, f"▶ {capa}")
+        pdf.set_font("Helvetica", '', 9)
+        for h in hallazgos:
+            pdf.multi_cell(0, 5, f"- {h}")
+        pdf.ln(3)
+
 
         # ================= RECOMENDACIONES FORENSES INMEDIATAS =================
         pdf.set_font("Helvetica", 'B', 12)
