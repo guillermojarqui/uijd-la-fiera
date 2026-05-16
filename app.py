@@ -241,17 +241,20 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
 
 
         # Encabezado con imagen de Iustitia
-        pdf.set_font("Arial", 'B', 14)
+        pdf.set_font("DejaVu", '', 14)
+
         pdf.cell(0, 10, "DICTAMEN DE INTELIGENCIA ESTRATÉGICA", ln=True, align="C")
         pdf.image("Iustitia.jpg", x=160, y=15, w=40)
 
         pdf.ln(20)
 
         # ================= RESUMEN EJECUTIVO =================
-        pdf.set_font("Helvetica", 'B', 14)
+        pdf.set_font("DejaVu", '', 14)
+
         pdf.set_text_color(184, 134, 11)
         pdf.cell(0, 8, "RESUMEN EJECUTIVO", 0, 1)
-        pdf.set_font("Helvetica", '', 11)
+        pdf.set_font("DejaVu", '', 11)
+
         pdf.set_text_color(0, 0, 0)
 
         total_hallazgos = sum(len(v) for v in resultados.values())
@@ -273,25 +276,31 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf.ln(5)
 
         # ================= HALLAZGOS DESTACADOS =================
-        pdf.set_font("Helvetica", 'B', 12)
+        pdf.set_font("DejaVu", '', 12)
+
         pdf.set_text_color(184, 134, 11)
         pdf.cell(0, 8, "HALLAZGOS DESTACADOS", 0, 1)
-        pdf.set_font("Helvetica", '', 9)
+        pdf.set_font("DejaVu", '', 9)
+
         pdf.set_text_color(0, 0, 0)
 
         for capa, hallazgos in resultados.items():
-            pdf.set_font("Helvetica", 'B', 10)
+            pdf.set_font("DejaVu", '', 10)
+
             pdf.multi_cell(0, 6, f"▶ {capa}")
-            pdf.set_font("Helvetica", '', 9)
+            pdf.set_font("DejaVu", '', 9)
+
             for h in hallazgos:
                 pdf.multi_cell(0, 5, f"- {h}")
             pdf.ln(3)
 
         # ================= RECOMENDACIONES FORENSES INMEDIATAS =================
-        pdf.set_font("Helvetica", 'B', 12)
+        pdf.set_font("DejaVu", '', 12)
+
         pdf.set_text_color(184, 134, 11)
         pdf.cell(0, 8, "RECOMENDACIONES FORENSES INMEDIATAS", 0, 1)
-        pdf.set_font("Helvetica", '', 10)
+        pdf.set_font("DejaVu", '', 10)
+
         pdf.set_text_color(0, 0, 0)
 
         if nivel == "ALTO / CRITICO":
