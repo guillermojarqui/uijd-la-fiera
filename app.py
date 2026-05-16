@@ -287,7 +287,9 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         for capa, hallazgos in resultados.items():
             pdf.set_font("DejaVu", '', 10)
 
-            pdf.multi_cell(0, 6, f"▶ {capa}")
+            texto_capa = str(capa).strip() if capa else "Sin nombre de capa"
+            pdf.multi_cell(0, 6, f"▶ {texto_capa}")
+
             pdf.set_font("DejaVu", '', 9)
 
         for h in hallazgos:
