@@ -223,7 +223,13 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         datos_registro = []
     try:
         pdf = DictamenPremium()
+
+        # Cargar fuente Unicode DejaVu
+        pdf.add_font("DejaVu", "", "fonts/DejaVuSans.ttf", uni=True)
+        pdf.set_font("DejaVu", '', 10)
+
         pdf.add_page()
+
 
         # Encabezado con imagen de Iustitia
         pdf.set_font("Arial", 'B', 14)
