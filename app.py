@@ -95,10 +95,15 @@ SERPER_API_KEY = "97d64a29b4de5ddd082fa1d71cb7374c111e1e22"
 def buscar_serper(query, num=10):
     url = "https://google.serper.dev/search"
     headers = {'X-API-KEY': SERPER_API_KEY, 'Content-Type': 'application/json'}
+    
+    # No codifiques aquí, deja que json.dumps maneje los caracteres especiales
+    payload = json.dumps({"q": query, "gl": "cr", "num": num}) 
 
-    # Validar que la query no esté vacía
-    if not query or query.strip() == "":
-        st.warning("Query vacía, se omite búsqueda.")
+    try:
+        response = requests.post(url, headers=headers, data=payload, timeout=20) # Aumenté timeout
+        response.raise_for_status()
+        return response.json()
+    except Exception as e:
         return {}
 
     # Codificar espacios y caracteres especiales
@@ -283,21 +288,22 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf.set_font("DejaVu", '', 9)
 
         pdf.set_text_color(0, 0, 0)
-
+        # Busca esta sección en tu función generar_pdf_premium y reemplázala:
         for capa, hallazgos in resultados.items():
-            pdf.set_font("DejaVu", '', 10)
-
-            texto_capa = str(capa).strip() if capa else "Sin nombre de capa"
-            # Reemplazar caracteres invisibles o raros
-            texto_capa = re.sub(r'[^\x20-\x7E\u00A0-\uFFFF]', '', texto_capa)
-            pdf.multi_cell(180, 6, f"▶ {texto_capa}")  # ancho fijo de 180 en lugar de 0
+            pdf.set_font("DejaVu", 'B', 10) # Cambié a Bold para destacar la capa
+            texto_capa = str(capa).strip()
+            pdf.multi_cell(190, 7, f"CAPA: {texto_capa}", border=0) # Ancho definido de 190
 
             pdf.set_font("DejaVu", '', 9)
             for h in hallazgos:
-                texto = str(h).strip() if h else "Sin contenido"
-                texto = re.sub(r'[^\x20-\x7E\u00A0-\uFFFF]', '', texto)
-                pdf.multi_cell(180, 5, f"- {texto}")
-            pdf.ln(3)
+                # Combinamos título y extracto para evitar celdas vacías
+                contenido = f"{h.get('titulo', '')}: {h.get('dato', '')}"
+                # Limpieza crítica de caracteres de control
+                contenido_limpio = "".join(c for c in contenido if c.isprintable())
+        
+                # IMPORTANTE: Usamos un ancho fijo (190) en lugar de 0
+                pdf.multi_cell(190, 5, f"- {contenido_limpio}")
+                pdf.ln(2)
 
 
         for h in hallazgos:
