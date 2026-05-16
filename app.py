@@ -305,14 +305,11 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
 
         return pdf.output(dest='S').encode('utf-8')
 
-
-
-
-    except Exception as e:
-        st.error(f"Error interno al generar el PDF: {e}")
-        import traceback
-        st.code(traceback.format_exc())
-        return None
+        except Exception as e:
+            st.error(f"Error interno al generar el PDF: {e}")
+            import traceback
+            st.code(traceback.format_exc())
+            return None
 
 
 
