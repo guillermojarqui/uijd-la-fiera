@@ -277,7 +277,7 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
 
         # ================= HALLAZGOS DESTACADOS =================
         pdf.set_font("DejaVu", '', 12)
-
+     
         pdf.set_text_color(184, 134, 11)
         pdf.cell(0, 8, "HALLAZGOS DESTACADOS", 0, 1)
         pdf.set_font("DejaVu", '', 9)
@@ -288,9 +288,17 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
             pdf.set_font("DejaVu", '', 10)
 
             texto_capa = str(capa).strip() if capa else "Sin nombre de capa"
-            pdf.multi_cell(0, 6, f"▶ {texto_capa}")
+            # Reemplazar caracteres invisibles o raros
+            texto_capa = re.sub(r'[^\x20-\x7E\u00A0-\uFFFF]', '', texto_capa)
+            pdf.multi_cell(180, 6, f"▶ {texto_capa}")  # ancho fijo de 180 en lugar de 0
 
             pdf.set_font("DejaVu", '', 9)
+            for h in hallazgos:
+            texto = str(h).strip() if h else "Sin contenido"
+            texto = re.sub(r'[^\x20-\x7E\u00A0-\uFFFF]', '', texto)
+            pdf.multi_cell(180, 5, f"- {texto}")
+        pdf.ln(3)
+
 
         for h in hallazgos:
             texto = str(h).strip() if h else "Sin contenido"
