@@ -337,7 +337,7 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
 
 
 # ================= DASHBOARD PRINCIPAL =================
-st.set_page_config(page_title="UIJD - Jarquin Legal Intelligence", layout="wide", page_icon=":material/balance:")
+
 
 col1, col2 = st.columns([1, 3])
 with col1:
