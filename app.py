@@ -228,11 +228,7 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         # Encabezado con imagen de Iustitia
         pdf.set_font("Arial", 'B', 14)
         pdf.cell(0, 10, "DICTAMEN DE INTELIGENCIA ESTRATÉGICA", ln=True, align="C")
-
         pdf.image("Iustitia.jpg", x=160, y=15, w=40)
-
-
-
 
         pdf.ln(20)
 
@@ -258,10 +254,8 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
             f"El nivel de riesgo calculado es {nivel} con una puntuación de {riesgo_score}/100. "
             "Se recomienda atención inmediata a las capas críticas."
         )
-
         pdf.multi_cell(0, 8, texto_resumen)
         pdf.ln(5)
-
 
         # ================= HALLAZGOS DESTACADOS =================
         pdf.set_font("Helvetica", 'B', 12)
@@ -269,14 +263,14 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf.cell(0, 8, "HALLAZGOS DESTACADOS", 0, 1)
         pdf.set_font("Helvetica", '', 9)
         pdf.set_text_color(0, 0, 0)
-    for capa, hallazgos in resultados.items():
-        pdf.set_font("Helvetica", 'B', 10)
-        pdf.multi_cell(0, 6, f"▶ {capa}")
-        pdf.set_font("Helvetica", '', 9)
-        for h in hallazgos:
-            pdf.multi_cell(0, 5, f"- {h}")
-        pdf.ln(3)
 
+        for capa, hallazgos in resultados.items():
+            pdf.set_font("Helvetica", 'B', 10)
+            pdf.multi_cell(0, 6, f"▶ {capa}")
+            pdf.set_font("Helvetica", '', 9)
+            for h in hallazgos:
+                pdf.multi_cell(0, 5, f"- {h}")
+            pdf.ln(3)
 
         # ================= RECOMENDACIONES FORENSES INMEDIATAS =================
         pdf.set_font("Helvetica", 'B', 12)
@@ -299,7 +293,7 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
                 "2. Monitoreo periódico en prensa y fuentes abiertas.",
                 "3. Evaluar auditoría forense de nivel II.",
                 "4. Control preventivo en contrataciones públicas."
-            ]   
+            ]
         else:  # BAJO
             recs = [
                 "1. Verificación periódica en el Registro Nacional.",
@@ -314,10 +308,11 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         return pdf.output(dest='S').encode('utf-8')
 
     except Exception as e:
-            st.error(f"Error interno al generar el PDF: {e}")
-            import traceback
-            st.code(traceback.format_exc())
-            return None
+        st.error(f"Error interno al generar el PDF: {e}")
+        import traceback
+        st.code(traceback.format_exc())
+        return None
+
 
 
 
