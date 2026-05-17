@@ -244,21 +244,22 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf.set_auto_page_break(auto=True, margin=15)
         pdf.set_margins(left=15, top=15, right=15)
         pdf.add_page()  # <--- ESTA ES LA LÍNEA QUE FALTA
-        # --- CARGA INTELIGENTE DE FUENTES ---
-        fuente_usar = "Helvetica"  # Por defecto usamos la segura
+        # --- CARGA ULTRA-SEGURA DE FUENTES ---
+        fuente_usar = "Helvetica" 
         try:
-            # Intentamos cargar la fuente normal
+            # Cargamos la normal
             pdf.add_font("DejaVu", "", "DejaVuSans.ttf", uni=True)
-            # Intentamos cargar la negrita (Si falla, usará la normal para todo)
             try:
+                # Intentamos cargar la negrita real
                 pdf.add_font("DejaVu", "B", "DejaVuSans-Bold.ttf", uni=True)
+                fuente_usar = "DejaVu"
             except:
-                pass 
-            
-            fuente_usar = "DejaVu"
+                # TRUCO MAESTRO: Si falla la negrita, le decimos que 
+                # use la normal incluso cuando pida "B" (Negrita)
+                pdf.add_font("DejaVu", "B", "DejaVuSans.ttf", uni=True)
+                fuente_usar = "DejaVu"
         except Exception as e:
-            # Si falla la carga principal, nos quedamos con Helvetica
-            st.warning(f"Usando fuente estándar por falta de archivos .ttf: {e}")
+            st.warning(f"Usando Helvetica por seguridad: {e}")
             fuente_usar = "Helvetica"
 
         # --- ENCABEZADO ---
