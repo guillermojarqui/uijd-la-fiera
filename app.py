@@ -277,8 +277,8 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         
         # 1. METODOLOGÍA (Nuevo bloque de Alta Gama)
         pdf.set_font(fuente_usar, "B", 12)
-        pdf.cell(0, 8, "I. ALCANCE Y METODOLOGÍA", ln=True)
-        pdf.set_font(fuente_usar, "", 10) 
+        # Línea 281 corregida
+        pdf.set_font(fuente_usar, "", 10)
         metodologia = (
             "La presente investigación se ha realizado bajo estándares internacionales de inteligencia de fuentes abiertas (OSINT). "
             "Se han auditado múltiples capas de datos digitales, registros públicos y huellas reputacionales para determinar el perfil de riesgo del objetivo."
@@ -286,10 +286,11 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf.multi_cell(0, 6, metodologia)
         pdf.ln(5)
 
-        # 2. RESUMEN EJECUTIVO
+        # # 2. RESUMEN EJECUTIVO
         riesgo_score = calcular_mapa_calor(resultados)
         nivel = "ALTO / CRÍTICO" if riesgo_score >= 75 else "MODERADO" if riesgo_score >= 40 else "BAJO"
-        
+
+        # Línea 293 corregida
         pdf.set_font(fuente_usar, "B", 12)
         pdf.cell(0, 8, f"II. RESUMEN DEL RIESGO: {nivel} ({riesgo_score}/100)", ln=True)
         pdf.ln(2)
