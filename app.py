@@ -295,16 +295,13 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
             pdf.set_font("DejaVu", "B", 11)
             pdf.cell(0, 8, f"CAPA: {str(capa).upper()}", ln=True, fill=True)
             pdf.ln(2)
-
-            pdf.set_font("DejaVu", "", 9)
-            for h in hallazgos:
-                titulo = h.get('titulo', 'Dato')
-                dato = h.get('dato', h.get('snippet', 'Sin detalle'))
-                contenido = f"• {titulo}: {dato}"
-                contenido_limpio = "".join(c for c in contenido if c.isprintable())
-                pdf.multi_cell(0, 5, contenido_limpio)
+        # Limpieza de "Alta Gama"
+                import unicodedata
+                contenido_limpio = unicodedata.normalize('NFKD', contenido).encode('ascii', 'ignore').decode('ascii')
+                
+                # Usamos la variable ya normalizada para evitar el error de latin-1
+                pdf.multi_cell(0, 5, f"• {contenido_limpio}")
                 pdf.ln(1)
-            pdf.ln(4)
 
         # 4. CONCLUSIÓN JURÍDICA (Espacio para tu firma)
         pdf.ln(10)
