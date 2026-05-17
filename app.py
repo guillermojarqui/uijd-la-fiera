@@ -247,7 +247,6 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         try:
             # Intentamos cargar las fuentes premium
             pdf.add_font("DejaVu", "", "fonts/DejaVuSans.ttf", uni=True)
-            # Verificamos si existe la negrita antes de agregarla para evitar el crash
             import os
             if os.path.exists("fonts/DejaVuSans-Bold.ttf"):
                 pdf.add_font("DejaVu", "B", "fonts/DejaVuSans-Bold.ttf", uni=True)
@@ -287,7 +286,6 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
             f"El nivel de riesgo calculado es {nivel} con una puntuación de {riesgo_score}/100. "
             f"Se recomienda atención inmediata a las capas críticas."
         )
-        # Usamos 190 para asegurar que el texto no desborde los márgenes
         pdf.multi_cell(190, 8, texto_resumen)
         pdf.ln(5)
 
@@ -299,7 +297,7 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf.set_text_color(0, 0, 0)
 
         for capa, hallazgos in resultados.items():
-            if not hallazgos: continue # Saltar capas vacías
+            if not hallazgos: continue 
             
             pdf.set_font("DejaVu", "", 10) 
             texto_capa = str(capa).strip().upper()
@@ -307,28 +305,24 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
 
             pdf.set_font("DejaVu", '', 9)
             for h in hallazgos:
-                # Combinamos título y dato de forma segura
                 titulo = h.get('titulo', 'Información')
                 dato = h.get('dato', h.get('snippet', 'Sin detalle adicional'))
                 contenido = f"{titulo}: {dato}"
                 
-                # Limpieza crítica para evitar caracteres que rompan fpdf2
+                # Limpieza de caracteres no imprimibles
                 contenido_limpio = "".join(c for c in contenido if c.isprintable())
                 
-                # IMPORTANTE: Ancho fijo de 190 para evitar el error de renderizado
                 pdf.multi_cell(185, 5, f"- {contenido_limpio}", align='L')
                 pdf.ln(1)
             pdf.ln(3)
 
-        return pdf.output(dest='S')
+        # SALVAGUARDA FINAL: Convertir bytearray a bytes para evitar error de Streamlit
+        pdf_output = pdf.output(dest='S')
+        return bytes(pdf_output) if isinstance(pdf_output, bytearray) else pdf_output
 
     except Exception as e:
         st.error(f"Error interno al generar el PDF: {e}")
-        import traceback
-        st.code(traceback.format_exc())
         return None
-
-
 
 
 
