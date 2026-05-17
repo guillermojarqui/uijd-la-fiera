@@ -243,7 +243,7 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf = DictamenPremium()
         pdf.set_auto_page_break(auto=True, margin=15)
         pdf.set_margins(left=15, top=15, right=15)
-        
+        pdf.add_page()  # <--- ESTA ES LA LÍNEA QUE FALTA
         # --- CARGA INTELIGENTE DE FUENTES ---
         fuente_usar = "Helvetica"  # Por defecto usamos la segura
         try:
