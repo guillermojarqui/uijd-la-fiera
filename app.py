@@ -244,17 +244,22 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf.set_auto_page_break(auto=True, margin=15)
         pdf.set_margins(left=15, top=15, right=15)
         
-        # --- CARGA DE FUENTES ROBUSTA ---
-        pdf.add_page()
-        fuente_usar = "Arial" # Por defecto
+        # --- CARGA INTELIGENTE DE FUENTES ---
+        fuente_usar = "Helvetica"  # Por defecto usamos la segura
         try:
-            if os.path.exists("fonts/DejaVuSans.ttf"):
-                pdf.add_font("DejaVu", "", "fonts/DejaVuSans.ttf", uni=True)
-                if os.path.exists("fonts/DejaVuSans-Bold.ttf"):
-                    pdf.add_font("DejaVu", "B", "fonts/DejaVuSans-Bold.ttf", uni=True)
-                fuente_usar = "DejaVu"
-        except Exception:
-            fuente_usar = "Arial"
+            # Intentamos cargar la fuente normal
+            pdf.add_font("DejaVu", "", "DejaVuSans.ttf", uni=True)
+            # Intentamos cargar la negrita (Si falla, usará la normal para todo)
+            try:
+                pdf.add_font("DejaVu", "B", "DejaVuSans-Bold.ttf", uni=True)
+            except:
+                pass 
+            
+            fuente_usar = "DejaVu"
+        except Exception as e:
+            # Si falla la carga principal, nos quedamos con Helvetica
+            st.warning(f"Usando fuente estándar por falta de archivos .ttf: {e}")
+            fuente_usar = "Helvetica"
 
         # --- ENCABEZADO ---
         if os.path.exists("Iustitia.jpg"):
