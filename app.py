@@ -237,22 +237,22 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         datos_registro = []
     try:
         pdf = DictamenPremium()
-
-        # Configuración de márgenes de seguridad para evitar error de espacio horizontal
+        
+        # Configuración de márgenes de seguridad
         pdf.set_auto_page_break(auto=True, margin=15)
         pdf.set_margins(left=10, top=10, right=10)
+        
         # Cargar fuente Unicode DejaVu (Regular y Negrita)
-        # Asegúrate de tener estas rutas correctas en tu repo
-       pdf.add_font("DejaVu", "", "fonts/DejaVuSans.ttf", uni=True)
-       pdf.add_font("DejaVu", "B", "fonts/DejaVuSans-Bold.ttf", uni=True)
-       pdf.set_font("DejaVu", "", 10)
+        pdf.add_font("DejaVu", "", "fonts/DejaVuSans.ttf", uni=True)
+        pdf.add_font("DejaVu", "B", "fonts/DejaVuSans-Bold.ttf", uni=True)
+        pdf.set_font("DejaVu", "", 10)
+        pdf.add_page()
 
         # Encabezado con imagen de Iustitia
-        pdf.set_font("DejaVu", '', 14)
+        pdf.set_font("DejaVu", "", 14)
         pdf.cell(190, 10, "DICTAMEN DE INTELIGENCIA ESTRATÉGICA", ln=True, align="C")
         pdf.image("Iustitia.jpg", x=160, y=15, w=40)
         pdf.ln(20)
-
         # ================= RESUMEN EJECUTIVO =================
         pdf.set_font("DejaVu", '', 14)
         pdf.set_text_color(184, 134, 11)
