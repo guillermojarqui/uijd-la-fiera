@@ -238,31 +238,29 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
     try:
         pdf = DictamenPremium()
 
+        # Configuración de márgenes de seguridad para evitar error de espacio horizontal
+        pdf.set_auto_page_break(auto=True, margin=15)
+        pdf.set_margins(left=10, top=10, right=10)
+        
         # Cargar fuente Unicode DejaVu
         pdf.add_font("DejaVu", "", "fonts/DejaVuSans.ttf", uni=True)
         pdf.set_font("DejaVu", '', 10)
-
         pdf.add_page()
-
 
         # Encabezado con imagen de Iustitia
         pdf.set_font("DejaVu", '', 14)
-
-        pdf.cell(0, 10, "DICTAMEN DE INTELIGENCIA ESTRATÉGICA", ln=True, align="C")
+        pdf.cell(190, 10, "DICTAMEN DE INTELIGENCIA ESTRATÉGICA", ln=True, align="C")
         pdf.image("Iustitia.jpg", x=160, y=15, w=40)
-
         pdf.ln(20)
 
         # ================= RESUMEN EJECUTIVO =================
         pdf.set_font("DejaVu", '', 14)
-
         pdf.set_text_color(184, 134, 11)
-        pdf.cell(0, 8, "RESUMEN EJECUTIVO", 0, 1)
+        pdf.cell(190, 8, "RESUMEN EJECUTIVO", 0, 1)
         pdf.set_font("DejaVu", '', 11)
-
         pdf.set_text_color(0, 0, 0)
 
-        total_hallazgos = sum(len(v) for v in resultados.values())
+        total_hallazgos = sum(len(v) for v in resultados.items())
         riesgo_score = calcular_mapa_calor(resultados)
 
         if riesgo_score >= 75:
@@ -275,78 +273,42 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         texto_resumen = (
             f"Se identificaron {total_hallazgos} hallazgos relevantes en el barrido forense. "
             f"El nivel de riesgo calculado es {nivel} con una puntuación de {riesgo_score}/100. "
-            "Se recomienda atención inmediata a las capas críticas."
+            f"Se recomienda atención inmediata a las capas críticas."
         )
-        pdf.multi_cell(0, 8, texto_resumen)
+        # Usamos 190 para asegurar que el texto no desborde los márgenes
+        pdf.multi_cell(190, 8, texto_resumen)
         pdf.ln(5)
 
         # ================= HALLAZGOS DESTACADOS =================
         pdf.set_font("DejaVu", '', 12)
-     
         pdf.set_text_color(184, 134, 11)
-        pdf.cell(0, 8, "HALLAZGOS DESTACADOS", 0, 1)
-        pdf.set_font("DejaVu", '', 9)
-
+        pdf.cell(190, 8, "HALLAZGOS DESTACADOS", 0, 1)
+        
         pdf.set_text_color(0, 0, 0)
-        # Busca esta sección en tu función generar_pdf_premium y reemplázala:
+
         for capa, hallazgos in resultados.items():
-            pdf.set_font("DejaVu", 'B', 10) # Cambié a Bold para destacar la capa
-            texto_capa = str(capa).strip()
-            pdf.multi_cell(190, 7, f"CAPA: {texto_capa}", border=0) # Ancho definido de 190
+            if not hallazgos: continue # Saltar capas vacías
+            
+            pdf.set_font("DejaVu", 'B', 10) 
+            texto_capa = str(capa).strip().upper()
+            pdf.multi_cell(190, 7, f"CAPA: {texto_capa}", border=0) 
 
             pdf.set_font("DejaVu", '', 9)
             for h in hallazgos:
-                # Combinamos título y extracto para evitar celdas vacías
-                contenido = f"{h.get('titulo', '')}: {h.get('dato', '')}"
-                # Limpieza crítica de caracteres de control
+                # Combinamos título y dato de forma segura
+                titulo = h.get('titulo', 'Información')
+                dato = h.get('dato', h.get('snippet', 'Sin detalle adicional'))
+                contenido = f"{titulo}: {dato}"
+                
+                # Limpieza crítica para evitar caracteres que rompan fpdf2
                 contenido_limpio = "".join(c for c in contenido if c.isprintable())
-        
-                # IMPORTANTE: Usamos un ancho fijo (190) en lugar de 0
-                pdf.multi_cell(190, 5, f"- {contenido_limpio}")
-                pdf.ln(2)
+                
+                # IMPORTANTE: Ancho fijo de 190 para evitar el error de renderizado
+                pdf.multi_cell(185, 5, f"- {contenido_limpio}", align='L')
+                pdf.ln(1)
+            pdf.ln(3)
 
-
-        for h in hallazgos:
-            texto = str(h).strip() if h else "Sin contenido"
-            pdf.multi_cell(0, 5, f"- {texto}")
-
-
-        # ================= RECOMENDACIONES FORENSES INMEDIATAS =================
-        pdf.set_font("DejaVu", '', 12)
-
-        pdf.set_text_color(184, 134, 11)
-        pdf.cell(0, 8, "RECOMENDACIONES FORENSES INMEDIATAS", 0, 1)
-        pdf.set_font("DejaVu", '', 10)
-
-        pdf.set_text_color(0, 0, 0)
-
-        if nivel == "ALTO / CRITICO":
-            recs = [
-                "1. Verificación inmediata en el Registro Nacional.",
-                "2. Consultar expediente judicial en el Poder Judicial.",
-                "3. Evaluar denuncia ante la UIF por indicios críticos.",
-                "4. Considerar auditoría forense de nivel IV.",
-                "5. Monitoreo continuo en prensa y fuentes abiertas."
-            ]
-        elif nivel == "MODERADO":
-            recs = [
-                "1. Seguimiento judicial en procesos abiertos.",
-                "2. Monitoreo periódico en prensa y fuentes abiertas.",
-                "3. Evaluar auditoría forense de nivel II.",
-                "4. Control preventivo en contrataciones públicas."
-            ]
-        else:  # BAJO
-            recs = [
-                "1. Verificación periódica en el Registro Nacional.",
-                "2. Control preventivo en prensa y fuentes abiertas.",
-                "3. Auditoría ligera de nivel I.",
-                "4. Seguimiento semestral de morosidad y reputación."
-            ]
-
-        for r in recs:
-            pdf.multi_cell(0, 7, r)
-
-        return pdf.output(dest='S').encode('utf-8')
+        return pdf.output(dest='S')
 
     except Exception as e:
         st.error(f"Error interno al generar el PDF: {e}")
