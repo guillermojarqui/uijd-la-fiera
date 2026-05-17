@@ -244,38 +244,41 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf.set_auto_page_break(auto=True, margin=15)
         pdf.set_margins(left=15, top=15, right=15)
         
-        # --- CARGA DE FUENTES ---
+        # --- CARGA DE FUENTES ROBUSTA ---
         pdf.add_page()
+        fuente_usar = "Arial" # Por defecto
         try:
-            pdf.add_font("DejaVu", "", "fonts/DejaVuSans.ttf", uni=True)
-            import os
-            if os.path.exists("fonts/DejaVuSans-Bold.ttf"):
-                pdf.add_font("DejaVu", "B", "fonts/DejaVuSans-Bold.ttf", uni=True)
-        except:
-            pdf.set_font("Arial", "", 10)
+            if os.path.exists("fonts/DejaVuSans.ttf"):
+                pdf.add_font("DejaVu", "", "fonts/DejaVuSans.ttf", uni=True)
+                if os.path.exists("fonts/DejaVuSans-Bold.ttf"):
+                    pdf.add_font("DejaVu", "B", "fonts/DejaVuSans-Bold.ttf", uni=True)
+                fuente_usar = "DejaVu"
+        except Exception:
+            fuente_usar = "Arial"
 
-        # --- ENCABEZADO PROFESIONAL (Sin sobreposición) ---
+        # --- ENCABEZADO ---
         if os.path.exists("Iustitia.jpg"):
             pdf.image("Iustitia.jpg", x=165, y=10, w=30)
         
-        pdf.set_font("DejaVu", "B", 12)
-        pdf.set_text_color(44, 62, 80) # Azul oscuro profesional
-        pdf.cell(0, 10, "JARQUÍN LEGAL SERVICES & AI SOLUTIONS", ln=True)
-        pdf.set_font("DejaVu", "", 9)
+        pdf.set_font(fuente_usar, "B", 12)
+        pdf.set_text_color(44, 62, 80)
+        pdf.cell(0, 10, "JARQUIN LEGAL SERVICES & AI SOLUTIONS", ln=True)
+        
+        # CAMBIO AQUÍ: Usamos la variable de seguridad en lugar de "DejaVu"
+        pdf.set_font(fuente_usar, "", 9) 
         pdf.cell(0, 5, "Unidad de Inteligencia Digital - La Fiera", ln=True)
-        pdf.ln(15) # Espacio de seguridad para no chocar con la imagen
 
-        # TÍTULO DEL DICTAMEN
-        pdf.set_font("DejaVu", "B", 16)
+        # TÍTULO DEL DICTAMEN (Uso de variable de seguridad)
+        pdf.set_font(fuente_usar, "B", 16)
         pdf.cell(0, 10, "DICTAMEN DE INTELIGENCIA ESTRATÉGICA", ln=True, align="C")
         pdf.set_draw_color(184, 134, 11) # Color Oro/Bronce
         pdf.line(40, pdf.get_y(), 170, pdf.get_y())
         pdf.ln(10)
         
         # 1. METODOLOGÍA (Nuevo bloque de Alta Gama)
-        pdf.set_font("DejaVu", "B", 12)
+        pdf.set_font(fuente_usar, "B", 12)
         pdf.cell(0, 8, "I. ALCANCE Y METODOLOGÍA", ln=True)
-        pdf.set_font("DejaVu", "", 10)
+        pdf.set_font(fuente_usar, "", 10) 
         metodologia = (
             "La presente investigación se ha realizado bajo estándares internacionales de inteligencia de fuentes abiertas (OSINT). "
             "Se han auditado múltiples capas de datos digitales, registros públicos y huellas reputacionales para determinar el perfil de riesgo del objetivo."
@@ -287,7 +290,7 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         riesgo_score = calcular_mapa_calor(resultados)
         nivel = "ALTO / CRÍTICO" if riesgo_score >= 75 else "MODERADO" if riesgo_score >= 40 else "BAJO"
         
-        pdf.set_font("DejaVu", "B", 12)
+        pdf.set_font(fuente_usar, "B", 12)
         pdf.cell(0, 8, f"II. RESUMEN DEL RIESGO: {nivel} ({riesgo_score}/100)", ln=True)
         pdf.ln(2)
 
