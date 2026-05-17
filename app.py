@@ -291,21 +291,27 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf.cell(0, 8, f"II. RESUMEN DEL RIESGO: {nivel} ({riesgo_score}/100)", ln=True)
         pdf.ln(2)
 
-        # 3. HALLAZGOS POR CAPAS (Ordenado)
+        # 3. HALLAZGOS POR CAPAS (Ordenado y Limpio)
         for capa, hallazgos in resultados.items():
             if not hallazgos: continue
             
-            pdf.set_fill_color(240, 240, 240) # Fondo gris claro para las capas
+            pdf.set_fill_color(240, 240, 240)
             pdf.set_font("DejaVu", "B", 11)
             pdf.cell(0, 8, f"CAPA: {str(capa).upper()}", ln=True, fill=True)
             pdf.ln(2)
-        # Limpieza de "Alta Gama"
+
+            # --- INICIO DEL BLOQUE CORRECTO ---
+            for h in hallazgos:
                 import unicodedata
+                # Extraemos el dato del hallazgo actual
+                contenido = h.get('dato', '')
+                # Normalizamos para evitar errores de latin-1
                 contenido_limpio = unicodedata.normalize('NFKD', contenido).encode('ascii', 'ignore').decode('ascii')
                 
-                # Usamos la variable ya normalizada para evitar el error de latin-1
+                pdf.set_font("DejaVu", "", 10)
                 pdf.multi_cell(0, 5, f"• {contenido_limpio}")
                 pdf.ln(1)
+            # --- FIN DEL BLOQUE CORRECTO ---
 
         # 4. CONCLUSIÓN JURÍDICA (Espacio para tu firma)
         pdf.ln(10)
