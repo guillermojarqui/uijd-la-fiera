@@ -237,91 +237,88 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         datos_registro = []
     try:
         pdf = DictamenPremium()
-        
-        # Configuración de márgenes de seguridad
         pdf.set_auto_page_break(auto=True, margin=15)
-        pdf.set_margins(left=10, top=10, right=10)
+        pdf.set_margins(left=15, top=15, right=15)
         
-        # --- BLOQUE BLINDADO DE FUENTES ---
+        # --- CARGA DE FUENTES ---
         pdf.add_page()
         try:
-            # Intentamos cargar las fuentes premium
             pdf.add_font("DejaVu", "", "fonts/DejaVuSans.ttf", uni=True)
             import os
             if os.path.exists("fonts/DejaVuSans-Bold.ttf"):
                 pdf.add_font("DejaVu", "B", "fonts/DejaVuSans-Bold.ttf", uni=True)
-            else:
-                st.warning("Aviso: Archivo de fuente negrita no encontrado. Usando estilo estándar.")
-        except Exception as e:
-            st.error(f"Error cargando fuentes: {e}. Usando fuente básica.")
+        except:
             pdf.set_font("Arial", "", 10)
+
+        # --- ENCABEZADO PROFESIONAL (Sin sobreposición) ---
+        if os.path.exists("Iustitia.jpg"):
+            pdf.image("Iustitia.jpg", x=165, y=10, w=30)
         
+        pdf.set_font("DejaVu", "B", 12)
+        pdf.set_text_color(44, 62, 80) # Azul oscuro profesional
+        pdf.cell(0, 10, "JARQUÍN LEGAL SERVICES & AI SOLUTIONS", ln=True)
+        pdf.set_font("DejaVu", "", 9)
+        pdf.cell(0, 5, "Unidad de Inteligencia Digital - La Fiera", ln=True)
+        pdf.ln(15) # Espacio de seguridad para no chocar con la imagen
+
+        # TÍTULO DEL DICTAMEN
+        pdf.set_font("DejaVu", "B", 16)
+        pdf.cell(0, 10, "DICTAMEN DE INTELIGENCIA ESTRATÉGICA", ln=True, align="C")
+        pdf.set_draw_color(184, 134, 11) # Color Oro/Bronce
+        pdf.line(40, pdf.get_y(), 170, pdf.get_y())
+        pdf.ln(10)
+        
+        # 1. METODOLOGÍA (Nuevo bloque de Alta Gama)
+        pdf.set_font("DejaVu", "B", 12)
+        pdf.cell(0, 8, "I. ALCANCE Y METODOLOGÍA", ln=True)
         pdf.set_font("DejaVu", "", 10)
-
-        # Encabezado con imagen de Iustitia
-        pdf.set_font("DejaVu", "", 14)
-        pdf.cell(190, 10, "DICTAMEN DE INTELIGENCIA ESTRATÉGICA", ln=True, align="C")
-        pdf.image("Iustitia.jpg", x=160, y=15, w=40)
-        pdf.ln(20)
-        
-        # ================= RESUMEN EJECUTIVO =================
-        pdf.set_font("DejaVu", '', 14)
-        pdf.set_text_color(184, 134, 11)
-        pdf.cell(190, 8, "RESUMEN EJECUTIVO", 0, 1)
-        pdf.set_font("DejaVu", '', 11)
-        pdf.set_text_color(0, 0, 0)
-
-        total_hallazgos = sum(len(v) for v in resultados.items())
-        riesgo_score = calcular_mapa_calor(resultados)
-
-        if riesgo_score >= 75:
-            nivel = "ALTO / CRITICO"
-        elif riesgo_score >= 40:
-            nivel = "MODERADO"
-        else:
-            nivel = "BAJO"
-
-        texto_resumen = (
-            f"Se identificaron {total_hallazgos} hallazgos relevantes en el barrido forense. "
-            f"El nivel de riesgo calculado es {nivel} con una puntuación de {riesgo_score}/100. "
-            f"Se recomienda atención inmediata a las capas críticas."
+        metodologia = (
+            "La presente investigación se ha realizado bajo estándares internacionales de inteligencia de fuentes abiertas (OSINT). "
+            "Se han auditado múltiples capas de datos digitales, registros públicos y huellas reputacionales para determinar el perfil de riesgo del objetivo."
         )
-        pdf.multi_cell(190, 8, texto_resumen)
+        pdf.multi_cell(0, 6, metodologia)
         pdf.ln(5)
 
-        # ================= HALLAZGOS DESTACADOS =================
-        pdf.set_font("DejaVu", '', 12)
-        pdf.set_text_color(184, 134, 11)
-        pdf.cell(190, 8, "HALLAZGOS DESTACADOS", 0, 1)
+        # 2. RESUMEN EJECUTIVO
+        riesgo_score = calcular_mapa_calor(resultados)
+        nivel = "ALTO / CRÍTICO" if riesgo_score >= 75 else "MODERADO" if riesgo_score >= 40 else "BAJO"
         
-        pdf.set_text_color(0, 0, 0)
+        pdf.set_font("DejaVu", "B", 12)
+        pdf.cell(0, 8, f"II. RESUMEN DEL RIESGO: {nivel} ({riesgo_score}/100)", ln=True)
+        pdf.ln(2)
 
+        # 3. HALLAZGOS POR CAPAS (Ordenado)
         for capa, hallazgos in resultados.items():
-            if not hallazgos: continue 
+            if not hallazgos: continue
             
-            pdf.set_font("DejaVu", "", 10) 
-            texto_capa = str(capa).strip().upper()
-            pdf.multi_cell(190, 7, f"CAPA: {texto_capa}", border=0) 
+            pdf.set_fill_color(240, 240, 240) # Fondo gris claro para las capas
+            pdf.set_font("DejaVu", "B", 11)
+            pdf.cell(0, 8, f"CAPA: {str(capa).upper()}", ln=True, fill=True)
+            pdf.ln(2)
 
-            pdf.set_font("DejaVu", '', 9)
+            pdf.set_font("DejaVu", "", 9)
             for h in hallazgos:
-                titulo = h.get('titulo', 'Información')
-                dato = h.get('dato', h.get('snippet', 'Sin detalle adicional'))
-                contenido = f"{titulo}: {dato}"
-                
-                # Limpieza de caracteres no imprimibles
+                titulo = h.get('titulo', 'Dato')
+                dato = h.get('dato', h.get('snippet', 'Sin detalle'))
+                contenido = f"• {titulo}: {dato}"
                 contenido_limpio = "".join(c for c in contenido if c.isprintable())
-                
-                pdf.multi_cell(185, 5, f"- {contenido_limpio}", align='L')
+                pdf.multi_cell(0, 5, contenido_limpio)
                 pdf.ln(1)
-            pdf.ln(3)
+            pdf.ln(4)
 
-        # SALVAGUARDA FINAL: Convertir bytearray a bytes para evitar error de Streamlit
+        # 4. CONCLUSIÓN JURÍDICA (Espacio para tu firma)
+        pdf.ln(10)
+        pdf.set_font("DejaVu", "B", 11)
+        pdf.cell(0, 8, "III. CONSIDERACIONES LEGALES FINALES", ln=True)
+        pdf.set_font("DejaVu", "", 10)
+        pdf.multi_cell(0, 6, "Basado en los hallazgos anteriores, se recomienda proceder con la debida diligencia intensificada. Los datos sugieren patrones que requieren una validación jurídica de fondo ante las autoridades competentes.")
+        
+        # SALIDA
         pdf_output = pdf.output(dest='S')
         return bytes(pdf_output) if isinstance(pdf_output, bytearray) else pdf_output
 
     except Exception as e:
-        st.error(f"Error interno al generar el PDF: {e}")
+        st.error(f"Error en Dictamen Alta Gama: {e}")
         return None
 
 
