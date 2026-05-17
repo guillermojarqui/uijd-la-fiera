@@ -330,21 +330,9 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         )
         pdf.multi_cell(0, 5, conclusion)
 
-        return pdf.output(dest='S').encode('latin-1')
-
-        # 4. CONCLUSIÓN JURÍDICA (Espacio para tu firma)
-        pdf.ln(10)
-        pdf.set_font(fuente_usar, "B", 11)
-        pdf.cell(0, 8, "III. CONSIDERACIONES LEGALES FINALES", ln=True)
-        pdf.set_font(fuente_usar, "", 10)
-        
-        conclusion = (
-            "Basado en los hallazgos anteriores, se recomienda proceder con la debida diligencia intensificada. "
-            "Los datos sugieren patrones que requieren una validación de campo adicional."
-        )
         pdf.multi_cell(0, 6, conclusion)
 
-        # # FINAL DEL BLOQUE: Generación del PDF
+        # # FINAL DEL BLOQUE: Generación del PDF (Limpio y sin errores de codificación)
         pdf_output = pdf.output(dest='S')
         # Convertimos a bytes si es necesario para Streamlit
         return bytes(pdf_output) if isinstance(pdf_output, bytearray) else pdf_output
