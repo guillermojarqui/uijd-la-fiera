@@ -242,17 +242,29 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf.set_auto_page_break(auto=True, margin=15)
         pdf.set_margins(left=10, top=10, right=10)
         
-        # Cargar fuente Unicode DejaVu (Regular y Negrita)
-        pdf.add_font("DejaVu", "", "fonts/DejaVuSans.ttf", uni=True)
-        pdf.add_font("DejaVu", "B", "fonts/DejaVuSans-Bold.ttf", uni=True)
-        pdf.set_font("DejaVu", "", 10)
+        # --- BLOQUE BLINDADO DE FUENTES ---
         pdf.add_page()
+        try:
+            # Intentamos cargar las fuentes premium
+            pdf.add_font("DejaVu", "", "fonts/DejaVuSans.ttf", uni=True)
+            # Verificamos si existe la negrita antes de agregarla para evitar el crash
+            import os
+            if os.path.exists("fonts/DejaVuSans-Bold.ttf"):
+                pdf.add_font("DejaVu", "B", "fonts/DejaVuSans-Bold.ttf", uni=True)
+            else:
+                st.warning("Aviso: Archivo de fuente negrita no encontrado. Usando estilo estándar.")
+        except Exception as e:
+            st.error(f"Error cargando fuentes: {e}. Usando fuente básica.")
+            pdf.set_font("Arial", "", 10)
+        
+        pdf.set_font("DejaVu", "", 10)
 
         # Encabezado con imagen de Iustitia
         pdf.set_font("DejaVu", "", 14)
         pdf.cell(190, 10, "DICTAMEN DE INTELIGENCIA ESTRATÉGICA", ln=True, align="C")
         pdf.image("Iustitia.jpg", x=160, y=15, w=40)
         pdf.ln(20)
+        
         # ================= RESUMEN EJECUTIVO =================
         pdf.set_font("DejaVu", '', 14)
         pdf.set_text_color(184, 134, 11)
