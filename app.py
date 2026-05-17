@@ -301,7 +301,7 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         for capa, hallazgos in resultados.items():
             if not hallazgos: continue # Saltar capas vacías
             
-            pdf.set_font("DejaVu", 'B', 10) 
+            pdf.set_font("DejaVu", "", 10) 
             texto_capa = str(capa).strip().upper()
             pdf.multi_cell(190, 7, f"CAPA: {texto_capa}", border=0) 
 
