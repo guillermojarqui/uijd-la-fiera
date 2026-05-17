@@ -310,11 +310,11 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf.set_font("DejaVu", "", 10)
         pdf.multi_cell(0, 6, "Basado en los hallazgos anteriores, se recomienda proceder con la debida diligencia intensificada. Los datos sugieren patrones que requieren una validación jurídica de fondo ante las autoridades competentes.")
         
-        # SALIDA
+        # Este es el final del bloque try (4 espacios de sangría)
         pdf_output = pdf.output(dest='S')
         return bytes(pdf_output) if isinstance(pdf_output, bytearray) else pdf_output
 
-    except Exception as e:
+    except Exception as e: # <--- Asegúrate de que este 'except' esté alineado EXACTAMENTE con el 'try' de arriba
         st.error(f"Error en Dictamen Alta Gama: {e}")
         return None
 
