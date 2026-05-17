@@ -298,9 +298,9 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         # 3. HALLAZGOS POR CAPAS (Ordenado y Limpio)
         for capa, hallazgos in resultados.items():
             if not hallazgos: continue
-            
             pdf.set_fill_color(240, 240, 240)
-            pdf.set_font("DejaVu", "B", 11)
+            # ERROR AQUÍ: Cambia "DejaVu" por fuente_usar
+            pdf.set_font(fuente_usar, "B", 11) 
             pdf.cell(0, 8, f"CAPA: {str(capa).upper()}", ln=True, fill=True)
             pdf.ln(2)
 
@@ -312,23 +312,44 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
                 # Normalizamos para evitar errores de latin-1
                 contenido_limpio = unicodedata.normalize('NFKD', contenido).encode('ascii', 'ignore').decode('ascii')
                 
-                pdf.set_font("DejaVu", "", 10)
+                # USAMOS VARIABLE DE SEGURIDAD (Línea 315 corregida)
+                pdf.set_font(fuente_usar, "", 10)
                 pdf.multi_cell(0, 5, f"• {contenido_limpio}")
                 pdf.ln(1)
             # --- FIN DEL BLOQUE CORRECTO ---
 
         # 4. CONCLUSIÓN JURÍDICA (Espacio para tu firma)
         pdf.ln(10)
-        pdf.set_font("DejaVu", "B", 11)
+        # CORRECCIÓN FINAL (Líneas 322 y 324)
+        pdf.set_font(fuente_usar, "B", 11)
         pdf.cell(0, 8, "III. CONSIDERACIONES LEGALES FINALES", ln=True)
-        pdf.set_font("DejaVu", "", 10)
-        pdf.multi_cell(0, 6, "Basado en los hallazgos anteriores, se recomienda proceder con la debida diligencia intensificada. Los datos sugieren patrones que requieren una validación jurídica de fondo ante las autoridades competentes.")
+        pdf.set_font(fuente_usar, "", 10)
+        conclusion = (
+            "Basado en los hallazgos anteriores, se recomienda proceder con la debida diligencia intensificada. "
+            "Los datos sugieren patrones que requieren una validación de campo adicional."
+        )
+        pdf.multi_cell(0, 5, conclusion)
+
+        return pdf.output(dest='S').encode('latin-1')
+
+        # 4. CONCLUSIÓN JURÍDICA (Espacio para tu firma)
+        pdf.ln(10)
+        pdf.set_font(fuente_usar, "B", 11)
+        pdf.cell(0, 8, "III. CONSIDERACIONES LEGALES FINALES", ln=True)
+        pdf.set_font(fuente_usar, "", 10)
         
-        # Este es el final del bloque try (4 espacios de sangría)
+        conclusion = (
+            "Basado en los hallazgos anteriores, se recomienda proceder con la debida diligencia intensificada. "
+            "Los datos sugieren patrones que requieren una validación de campo adicional."
+        )
+        pdf.multi_cell(0, 6, conclusion)
+
+        # # FINAL DEL BLOQUE: Generación del PDF
         pdf_output = pdf.output(dest='S')
+        # Convertimos a bytes si es necesario para Streamlit
         return bytes(pdf_output) if isinstance(pdf_output, bytearray) else pdf_output
 
-    except Exception as e: # <--- Asegúrate de que este 'except' esté alineado EXACTAMENTE con el 'try' de arriba
+    except Exception as e:
         st.error(f"Error en Dictamen Alta Gama: {e}")
         return None
 
