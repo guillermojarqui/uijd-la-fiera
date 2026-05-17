@@ -241,11 +241,11 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         # Configuración de márgenes de seguridad para evitar error de espacio horizontal
         pdf.set_auto_page_break(auto=True, margin=15)
         pdf.set_margins(left=10, top=10, right=10)
-        
-        # Cargar fuente Unicode DejaVu
-        pdf.add_font("DejaVu", "", "fonts/DejaVuSans.ttf", uni=True)
-        pdf.set_font("DejaVu", '', 10)
-        pdf.add_page()
+        # Cargar fuente Unicode DejaVu (Regular y Negrita)
+        # Asegúrate de tener estas rutas correctas en tu repo
+       pdf.add_font("DejaVu", "", "fonts/DejaVuSans.ttf", uni=True)
+       pdf.add_font("DejaVu", "B", "fonts/DejaVuSans-Bold.ttf", uni=True)
+       pdf.set_font("DejaVu", "", 10)
 
         # Encabezado con imagen de Iustitia
         pdf.set_font("DejaVu", '', 14)
