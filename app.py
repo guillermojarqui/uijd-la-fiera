@@ -244,42 +244,30 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf.set_auto_page_break(auto=True, margin=15)
         pdf.set_margins(left=15, top=15, right=15)
         pdf.add_page()  # <--- ESTA ES LA LÍNEA QUE FALTA
-        # --- CARGA ULTRA-SEGURA DE FUENTES ---
-        fuente_usar = "Helvetica" 
-        try:
-            # Cargamos la normal
-            pdf.add_font("DejaVu", "", "DejaVuSans.ttf", uni=True)
-            try:
-                # Intentamos cargar la negrita real
-                pdf.add_font("DejaVu", "B", "DejaVuSans-Bold.ttf", uni=True)
-                fuente_usar = "DejaVu"
-            except:
-                # TRUCO MAESTRO: Si falla la negrita, le decimos que 
-                # use la normal incluso cuando pida "B" (Negrita)
-                pdf.add_font("DejaVu", "B", "DejaVuSans.ttf", uni=True)
-                fuente_usar = "DejaVu"
-        except Exception as e:
-            st.warning(f"Usando Helvetica por seguridad: {e}")
-            fuente_usar = "Helvetica"
+        # 1. FONDO PROFESIONAL (Color Crema Marfil)
+        pdf.set_fill_color(253, 252, 248)
+        pdf.rect(0, 0, 210, 297, 'F')
 
-        # --- ENCABEZADO ---
-        if os.path.exists("Iustitia.jpg"):
-            pdf.image("Iustitia.jpg", x=165, y=10, w=30)
+        # 2. ENCABEZADO CON IUSTITIA REUBICADA (A la derecha para no estorbar)
+        if os.path.exists("lustitia.jpg"):
+            pdf.image("lustitia.jpg", x=165, y=12, w=35) 
         
-        pdf.set_font(fuente_usar, "B", 12)
-        pdf.set_text_color(44, 62, 80)
+        # 3. IDENTIDAD CORPORATIVA
+        pdf.set_font(fuente_usar, "B", 15)
+        pdf.set_text_color(20, 40, 80) # Azul Oxford Profesional
         pdf.cell(180, 10, "JARQUIN LEGAL SERVICES & AI SOLUTIONS", ln=True)
-        
-        # CAMBIO AQUÍ: También ponemos 180 aquí para que no se quede sin espacio
-        pdf.set_font(fuente_usar, "", 9) 
-        pdf.cell(180, 5, "Unidad de Inteligencia Digital - La Fiera", ln=True)
+        pdf.set_font(fuente_usar, "", 9)
+        pdf.set_text_color(100, 100, 100) # Gris elegante
+        pdf.cell(180, 5, "Unidad de Inteligencia Digital - La Fiera | OSINT Legal Unit", ln=True)
+        pdf.ln(15)
 
-        # TÍTULO DEL DICTAMEN
-        pdf.set_font(fuente_usar, "B", 16)
-        pdf.cell(180, 10, "DICTAMEN DE INTELIGENCIA ESTRATÉGICA", ln=True, align="C")
-        pdf.set_draw_color(184, 134, 11) # Color Oro/Bronce
-        pdf.line(40, pdf.get_y(), 170, pdf.get_y())
-        pdf.ln(10)
+        # 4. TÍTULO DEL DICTAMEN
+        pdf.set_font(fuente_usar, "B", 18)
+        pdf.set_text_color(184, 134, 11) # Color Oro/Bronce
+        pdf.cell(180, 12, "DICTAMEN DE INTELIGENCIA ESTRATÉGICA", ln=True, align="C")
+        pdf.set_draw_color(184, 134, 11)
+        pdf.line(35, pdf.get_y(), 175, pdf.get_y())
+        pdf.ln(12)
         
         # 1. METODOLOGÍA (Nuevo bloque de Alta Gama)
         pdf.set_font(fuente_usar, "B", 12)
@@ -320,24 +308,33 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
                 
                 # USAMOS VARIABLE DE SEGURIDAD (Línea 315 corregida)
                 pdf.set_font(fuente_usar, "", 10)
-                pdf.multi_cell(180, 5, f"• {contenido_limpio}")
-                pdf.ln(1)
+                # --- RENDERIZADO DE HALLAZGOS CON ESPACIADO ---
+            pdf.set_text_color(30, 30, 30) 
+            pdf.set_font(fuente_usar, "", 10)
+            if "http" in contenido_limpio:
+                pdf.set_text_color(0, 50, 150) # Azul para links
+            pdf.multi_cell(180, 7, f"• {contenido_limpio}", border=0)
+            pdf.ln(4) # Espacio entre cada punto
+            pdf.set_text_color(0, 0, 0)
             # --- FIN DEL BLOQUE CORRECTO ---
 
-        # 4. CONCLUSIÓN JURÍDICA (Espacio para tu firma)
+        # 4. CRITERIO JURÍDICO ESTRATÉGICO (Impacto de Firma)
         pdf.ln(10)
-        # CORRECCIÓN FINAL (Líneas 322 y 324)
-        pdf.set_font(fuente_usar, "B", 11)
-        # CAMBIO: De 0 a 180
-        pdf.cell(180, 8, "III. CONSIDERACIONES LEGALES FINALES", ln=True)
+        pdf.set_font(fuente_usar, "B", 12)
+        pdf.set_text_color(184, 134, 11) # Oro
+        pdf.cell(180, 8, "III. CONSIDERACIONES LEGALES Y CRITERIO ESTRATÉGICO", ln=True)
         pdf.set_font(fuente_usar, "", 10)
-        conclusion = (
-            "Basado en los hallazgos anteriores, se recomienda proceder con la debida diligencia intensificada. "
-            "Los datos sugieren patrones que requieren una validación de campo adicional."
+        pdf.set_text_color(0, 0, 0)
+        
+        criterio_experto = (
+            "Este análisis se fundamenta en protocolos de debida diligencia intensificada (DDI) y la Ley 8204. "
+            "Los indicadores detectados sugieren una exposición de riesgo que exige una correlación probatoria "
+            "inmediata ante la Sección de Delitos Económicos y Financieros. El incumplimiento de estas validaciones "
+            "podría derivar en responsabilidades penales administrativas por omisión de control. "
+            "Este dictamen constituye una alerta temprana de inteligencia legal bajo el sello de Jarquín Legal Services."
         )
-        pdf.multi_cell(180, 5, conclusion) 
-
-        pdf.multi_cell(180, 6, conclusion)
+        pdf.multi_cell(180, 6, criterio_experto)
+        pdf.ln(10)
 
         # # FINAL DEL BLOQUE: Generación del PDF (Limpio y sin errores de codificación)
         pdf_output = pdf.output(dest='S')
