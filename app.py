@@ -246,34 +246,36 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         fuente_usar = "Helvetica"
         
         pdf.add_page()
-        # 1. FONDO PROFESIONAL (Gris Humo muy tenue para máxima legibilidad)
-        pdf.set_fill_color(245, 245, 245)
+        # 1. FONDO PROFESIONAL (Gris Acero Suave - Más oscuro que el anterior)
+        # Este tono elimina el blanco total y da una sensación de documento técnico/forense
+        pdf.set_fill_color(230, 233, 237)
         pdf.rect(0, 0, 210, 297, 'F')
 
-        # 2. ENCABEZADO CON IUSTITIA (Nombre corregido a Iustitia.jpg)
-        if os.path.exists("Iustitia.jpg"):
-            pdf.image("Iustitia.jpg", x=165, y=12, w=35) 
-        
-        # 3. IDENTIDAD CORPORATIVA
-        pdf.set_font(fuente_usar, "B", 15)
-        pdf.set_text_color(20, 40, 80) 
-        pdf.cell(180, 10, "JARQUIN LEGAL SERVICES & AI SOLUTIONS", ln=True)
-        pdf.set_font(fuente_usar, "", 9)
-        pdf.set_text_color(100, 100, 100)
-        pdf.cell(180, 5, "Unidad de Inteligencia Digital - La Fiera | OSINT Legal Unit", ln=True)
-        pdf.ln(15)
+        # 2. BLOQUE AZUL DE MARCA (Encabezado sólido)
+        pdf.set_fill_color(20, 40, 80) # Azul Jarquín
+        pdf.rect(0, 0, 210, 50, 'F')
 
-        # 4. TÍTULO DEL DICTAMEN
-        pdf.set_font(fuente_usar, "B", 18)
-        pdf.set_text_color(184, 134, 11)
-        pdf.cell(180, 12, "DICTAMEN DE INTELIGENCIA ESTRATEGICA", ln=True, align="C")
-        pdf.set_draw_color(184, 134, 11)
-        pdf.line(35, pdf.get_y(), 175, pdf.get_y())
-        pdf.ln(12)
+        # 3. IUSTITIA E IDENTIDAD
+        if os.path.exists("Iustitia.jpg"):
+            pdf.image("Iustitia.jpg", x=165, y=5, w=35) 
         
-        # 5. METODOLOGÍA (Bloque de Alta Gama Recuperado)
+        pdf.set_y(15)
+        pdf.set_font(fuente_usar, "B", 18)
+        pdf.set_text_color(184, 134, 11) # Oro
+        pdf.cell(150, 10, "DICTAMEN DE INTELIGENCIA ESTRATEGICA", ln=True, align="L")
+        
         pdf.set_font(fuente_usar, "B", 12)
-        pdf.set_text_color(0, 0, 0)
+        pdf.set_text_color(255, 255, 255) # Blanco
+        pdf.cell(150, 8, "JARQUIN LEGAL SERVICES & AI SOLUTIONS", ln=True, align="L")
+        pdf.set_font(fuente_usar, "", 9)
+        pdf.cell(150, 5, "Unidad de Inteligencia Digital - La Fiera | OSINT Legal Unit", ln=True, align="L")
+
+        pdf.set_y(60)
+        pdf.set_text_color(40, 40, 40) # Texto gris muy oscuro para mejor legibilidad sobre fondo gris
+        
+        # 4. METODOLOGÍA
+        pdf.set_font(fuente_usar, "B", 12)
+        pdf.cell(180, 8, "I. METODOLOGIA", ln=True)
         pdf.set_font(fuente_usar, "", 10)
         metodologia = (
             "La presente investigacion se ha realizado bajo estandares internacionales de inteligencia de fuentes abiertas (OSINT). "
@@ -282,17 +284,18 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf.multi_cell(180, 6, metodologia)
         pdf.ln(5)
 
-        # 6. RESUMEN EJECUTIVO
+        # 5. RESUMEN EJECUTIVO
         riesgo_score = calcular_mapa_calor(resultados)
         nivel = "ALTO / CRITICO" if riesgo_score >= 75 else "MODERADO" if riesgo_score >= 40 else "BAJO"
         pdf.set_font(fuente_usar, "B", 12)
         pdf.cell(180, 8, f"II. RESUMEN DEL RIESGO: {nivel} ({riesgo_score}/100)", ln=True)
         pdf.ln(2)
 
-        # 7. HALLAZGOS POR CAPAS CON LINKS AZULES
+        # 6. HALLAZGOS POR CAPAS
         for capa, hallazgos in resultados.items():
             if not hallazgos: continue
-            pdf.set_fill_color(230, 230, 230)
+            # Fondo de la cabecera de capa un poco más oscuro para resaltar
+            pdf.set_fill_color(200, 205, 215)
             pdf.set_font(fuente_usar, "B", 11) 
             pdf.cell(180, 8, f"CAPA: {str(capa).upper()}", ln=True, fill=True)
             pdf.ln(2)
@@ -301,29 +304,25 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
                 import unicodedata
                 contenido = h.get('dato', '')
                 fuente_url = h.get('fuente', '')
-                
                 contenido_seguro = unicodedata.normalize('NFKD', contenido).encode('ascii', 'ignore').decode('ascii')
                 
-                pdf.set_text_color(30, 30, 30) 
                 pdf.set_font(fuente_usar, "", 10)
-                
-                # Si el contenido es un link, lo ponemos azul y clickeable
                 if "http" in contenido_seguro or fuente_url:
-                    pdf.set_text_color(0, 50, 150) # Azul profesional
+                    pdf.set_text_color(0, 50, 150) # Azul Links
                     pdf.multi_cell(180, 7, f"- {contenido_seguro}", border=0, link=fuente_url if fuente_url else "")
                 else:
+                    pdf.set_text_color(40, 40, 40)
                     pdf.multi_cell(180, 7, f"- {contenido_seguro}", border=0)
                 
                 pdf.ln(2)
-                pdf.set_text_color(0, 0, 0)
 
-        # 8. CRITERIO JURÍDICO ESTRATÉGICO (Recuperado íntegramente)
+        # 7. CRITERIO JURÍDICO ESTRATÉGICO
         pdf.ln(10)
         pdf.set_font(fuente_usar, "B", 12)
         pdf.set_text_color(184, 134, 11)
         pdf.cell(180, 8, "III. CONSIDERACIONES LEGALES Y CRITERIO ESTRATEGICO", ln=True)
         pdf.set_font(fuente_usar, "", 10)
-        pdf.set_text_color(0, 0, 0)
+        pdf.set_text_color(40, 40, 40)
         
         criterio_experto = (
             "Este analisis se fundamenta en protocolos de debida diligencia intensificada (DDI) y la Ley 8204. "
@@ -335,7 +334,6 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf.multi_cell(180, 6, criterio_experto)
         pdf.ln(10)
 
-        # FINAL: Generación del PDF
         pdf_output = pdf.output(dest='S')
         return bytes(pdf_output) if isinstance(pdf_output, bytearray) else pdf_output
 
