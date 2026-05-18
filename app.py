@@ -270,11 +270,11 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf.set_text_color(44, 62, 80)
         pdf.cell(180, 10, "JARQUIN LEGAL SERVICES & AI SOLUTIONS", ln=True)
         
-        # CAMBIO AQUÍ: Usamos la variable de seguridad en lugar de "DejaVu"
+        # CAMBIO AQUÍ: También ponemos 180 aquí para que no se quede sin espacio
         pdf.set_font(fuente_usar, "", 9) 
-        pdf.cell(0, 5, "Unidad de Inteligencia Digital - La Fiera", ln=True)
+        pdf.cell(180, 5, "Unidad de Inteligencia Digital - La Fiera", ln=True)
 
-        # TÍTULO DEL DICTAMEN (Uso de variable de seguridad)
+        # TÍTULO DEL DICTAMEN
         pdf.set_font(fuente_usar, "B", 16)
         pdf.cell(180, 10, "DICTAMEN DE INTELIGENCIA ESTRATÉGICA", ln=True, align="C")
         pdf.set_draw_color(184, 134, 11) # Color Oro/Bronce
@@ -289,7 +289,7 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
             "La presente investigación se ha realizado bajo estándares internacionales de inteligencia de fuentes abiertas (OSINT). "
             "Se han auditado múltiples capas de datos digitales, registros públicos y huellas reputacionales para determinar el perfil de riesgo del objetivo."
         )
-        pdf.multi_cell(0, 6, metodologia)
+        pdf.multi_cell(180, 6, metodologia)
         pdf.ln(5)
 
         # # 2. RESUMEN EJECUTIVO
@@ -298,7 +298,7 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
 
         # Línea 293 corregida
         pdf.set_font(fuente_usar, "B", 12)
-        pdf.cell(0, 8, f"II. RESUMEN DEL RIESGO: {nivel} ({riesgo_score}/100)", ln=True)
+        pdf.cell(180, 8, f"II. RESUMEN DEL RIESGO: {nivel} ({riesgo_score}/100)", ln=True)
         pdf.ln(2)
 
         # 3. HALLAZGOS POR CAPAS (Ordenado y Limpio)
@@ -320,7 +320,7 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
                 
                 # USAMOS VARIABLE DE SEGURIDAD (Línea 315 corregida)
                 pdf.set_font(fuente_usar, "", 10)
-                pdf.multi_cell(0, 5, f"• {contenido_limpio}")
+                pdf.multi_cell(180, 5, f"• {contenido_limpio}")
                 pdf.ln(1)
             # --- FIN DEL BLOQUE CORRECTO ---
 
@@ -328,15 +328,16 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf.ln(10)
         # CORRECCIÓN FINAL (Líneas 322 y 324)
         pdf.set_font(fuente_usar, "B", 11)
-        pdf.cell(0, 8, "III. CONSIDERACIONES LEGALES FINALES", ln=True)
+        # CAMBIO: De 0 a 180
+        pdf.cell(180, 8, "III. CONSIDERACIONES LEGALES FINALES", ln=True)
         pdf.set_font(fuente_usar, "", 10)
         conclusion = (
             "Basado en los hallazgos anteriores, se recomienda proceder con la debida diligencia intensificada. "
             "Los datos sugieren patrones que requieren una validación de campo adicional."
         )
-        pdf.multi_cell(0, 5, conclusion)
+        pdf.multi_cell(180, 5, conclusion) 
 
-        pdf.multi_cell(0, 6, conclusion)
+        pdf.multi_cell(180, 6, conclusion)
 
         # # FINAL DEL BLOQUE: Generación del PDF (Limpio y sin errores de codificación)
         pdf_output = pdf.output(dest='S')
