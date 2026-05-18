@@ -268,7 +268,7 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         
         pdf.set_font(fuente_usar, "B", 12)
         pdf.set_text_color(44, 62, 80)
-        pdf.cell(0, 10, "JARQUIN LEGAL SERVICES & AI SOLUTIONS", ln=True)
+        pdf.cell(180, 10, "JARQUIN LEGAL SERVICES & AI SOLUTIONS", ln=True)
         
         # CAMBIO AQUÍ: Usamos la variable de seguridad en lugar de "DejaVu"
         pdf.set_font(fuente_usar, "", 9) 
@@ -276,7 +276,7 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
 
         # TÍTULO DEL DICTAMEN (Uso de variable de seguridad)
         pdf.set_font(fuente_usar, "B", 16)
-        pdf.cell(0, 10, "DICTAMEN DE INTELIGENCIA ESTRATÉGICA", ln=True, align="C")
+        pdf.cell(180, 10, "DICTAMEN DE INTELIGENCIA ESTRATÉGICA", ln=True, align="C")
         pdf.set_draw_color(184, 134, 11) # Color Oro/Bronce
         pdf.line(40, pdf.get_y(), 170, pdf.get_y())
         pdf.ln(10)
@@ -307,7 +307,7 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
             pdf.set_fill_color(240, 240, 240)
             # ERROR AQUÍ: Cambia "DejaVu" por fuente_usar
             pdf.set_font(fuente_usar, "B", 11) 
-            pdf.cell(0, 8, f"CAPA: {str(capa).upper()}", ln=True, fill=True)
+            pdf.cell(180, 8, f"CAPA: {str(capa).upper()}", ln=True, fill=True)
             pdf.ln(2)
 
             # --- INICIO DEL BLOQUE CORRECTO ---
