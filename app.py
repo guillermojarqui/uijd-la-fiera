@@ -237,126 +237,106 @@ def ejecutar_barrido_completo(objetivo, progress_bar, status_text):
     return resultados
 
 def generar_pdf_premium(objetivo, resultados, datos_registro=None):
-    # ... inicialización ...
-    fuente_usar = "Helvetica" # <--- ESTO ES VITAL
+    if datos_registro is None:
+        datos_registro = []
     try:
-        # Intento de cargar fuentes externas...
-        # ...:
         pdf = DictamenPremium()
         pdf.set_auto_page_break(auto=True, margin=15)
         pdf.set_margins(left=15, top=15, right=15)
         fuente_usar = "Helvetica"
-        # --- ESTA ES LA LÍNEA QUE FALTA ---
-         
         
         pdf.add_page()
-        # 1. FONDO PROFESIONAL (Color Crema Marfil)
-        pdf.set_fill_color(253, 252, 248)
+        # 1. FONDO PROFESIONAL (Gris Humo muy tenue para máxima legibilidad)
+        pdf.set_fill_color(245, 245, 245)
         pdf.rect(0, 0, 210, 297, 'F')
 
-        # 2. ENCABEZADO CON IUSTITIA REUBICADA
-        if os.path.exists("lustitia.jpg"):
-            pdf.image("lustitia.jpg", x=165, y=12, w=35) 
+        # 2. ENCABEZADO CON IUSTITIA (Nombre corregido a Iustitia.jpg)
+        if os.path.exists("Iustitia.jpg"):
+            pdf.image("Iustitia.jpg", x=165, y=12, w=35) 
         
         # 3. IDENTIDAD CORPORATIVA
-        pdf.set_font(fuente_usar, "B", 15) # Aquí ya no dará error porque definimos fuente_usar arriba
+        pdf.set_font(fuente_usar, "B", 15)
         pdf.set_text_color(20, 40, 80) 
         pdf.cell(180, 10, "JARQUIN LEGAL SERVICES & AI SOLUTIONS", ln=True)
         pdf.set_font(fuente_usar, "", 9)
-        pdf.set_text_color(100, 100, 100) # Gris elegante
+        pdf.set_text_color(100, 100, 100)
         pdf.cell(180, 5, "Unidad de Inteligencia Digital - La Fiera | OSINT Legal Unit", ln=True)
         pdf.ln(15)
 
         # 4. TÍTULO DEL DICTAMEN
         pdf.set_font(fuente_usar, "B", 18)
-        pdf.set_text_color(184, 134, 11) # Color Oro/Bronce
-        pdf.cell(180, 12, "DICTAMEN DE INTELIGENCIA ESTRATÉGICA", ln=True, align="C")
+        pdf.set_text_color(184, 134, 11)
+        pdf.cell(180, 12, "DICTAMEN DE INTELIGENCIA ESTRATEGICA", ln=True, align="C")
         pdf.set_draw_color(184, 134, 11)
         pdf.line(35, pdf.get_y(), 175, pdf.get_y())
         pdf.ln(12)
         
-        # 1. METODOLOGÍA (Nuevo bloque de Alta Gama)
+        # 5. METODOLOGÍA (Bloque de Alta Gama Recuperado)
         pdf.set_font(fuente_usar, "B", 12)
-        # Línea 281 corregida
+        pdf.set_text_color(0, 0, 0)
         pdf.set_font(fuente_usar, "", 10)
         metodologia = (
-            "La presente investigación se ha realizado bajo estándares internacionales de inteligencia de fuentes abiertas (OSINT). "
-            "Se han auditado múltiples capas de datos digitales, registros públicos y huellas reputacionales para determinar el perfil de riesgo del objetivo."
+            "La presente investigacion se ha realizado bajo estandares internacionales de inteligencia de fuentes abiertas (OSINT). "
+            "Se han auditado multiples capas de datos digitales, registros publicos y huellas reputacionales para determinar el perfil de riesgo del objetivo."
         )
         pdf.multi_cell(180, 6, metodologia)
         pdf.ln(5)
 
-        # # 2. RESUMEN EJECUTIVO
+        # 6. RESUMEN EJECUTIVO
         riesgo_score = calcular_mapa_calor(resultados)
-        nivel = "ALTO / CRÍTICO" if riesgo_score >= 75 else "MODERADO" if riesgo_score >= 40 else "BAJO"
-
-        # Línea 293 corregida
+        nivel = "ALTO / CRITICO" if riesgo_score >= 75 else "MODERADO" if riesgo_score >= 40 else "BAJO"
         pdf.set_font(fuente_usar, "B", 12)
         pdf.cell(180, 8, f"II. RESUMEN DEL RIESGO: {nivel} ({riesgo_score}/100)", ln=True)
         pdf.ln(2)
 
-        # 3. HALLAZGOS POR CAPAS (Ordenado y Limpio)
+        # 7. HALLAZGOS POR CAPAS CON LINKS AZULES
         for capa, hallazgos in resultados.items():
             if not hallazgos: continue
-            pdf.set_fill_color(240, 240, 240)
-            # ERROR AQUÍ: Cambia "DejaVu" por fuente_usar
+            pdf.set_fill_color(230, 230, 230)
             pdf.set_font(fuente_usar, "B", 11) 
             pdf.cell(180, 8, f"CAPA: {str(capa).upper()}", ln=True, fill=True)
             pdf.ln(2)
 
-            # --- INICIO DEL BLOQUE CORRECTO ---
             for h in hallazgos:
                 import unicodedata
-                # Extraemos el dato del hallazgo actual
                 contenido = h.get('dato', '')
-                # Normalizamos para evitar errores de latin-1
-                contenido_limpio = unicodedata.normalize('NFKD', contenido).encode('ascii', 'ignore').decode('ascii')
+                fuente_url = h.get('fuente', '')
                 
-                # USAMOS VARIABLE DE SEGURIDAD (Línea 315 corregida)
-                pdf.set_font(fuente_usar, "", 10)
-                # --- RENDERIZADO DE HALLAZGOS SEGURO ---
-            for h in hallazgos:
-                import unicodedata
-                # Extraemos y limpiamos el contenido de forma agresiva para evitar errores
-                contenido = h.get('dato', '')
-                # Eliminamos acentos y caracteres raros que rompen el PDF
                 contenido_seguro = unicodedata.normalize('NFKD', contenido).encode('ascii', 'ignore').decode('ascii')
                 
                 pdf.set_text_color(30, 30, 30) 
                 pdf.set_font(fuente_usar, "", 10)
                 
-                # Resaltamos links en azul si existen
-                if "http" in contenido_seguro:
-                    pdf.set_text_color(0, 50, 150) 
+                # Si el contenido es un link, lo ponemos azul y clickeable
+                if "http" in contenido_seguro or fuente_url:
+                    pdf.set_text_color(0, 50, 150) # Azul profesional
+                    pdf.multi_cell(180, 7, f"- {contenido_seguro}", border=0, link=fuente_url if fuente_url else "")
+                else:
+                    pdf.multi_cell(180, 7, f"- {contenido_seguro}", border=0)
                 
-                # USAMOS UN GUION "-" EN VEZ DEL PUNTO "•" PARA EVITAR EL ERROR DE UNICODE
-                pdf.multi_cell(180, 7, f"- {contenido_seguro}", border=0)
-                
-                pdf.ln(4) # Espaciado de Alta Gama entre hallazgos
+                pdf.ln(2)
                 pdf.set_text_color(0, 0, 0)
-            # --- FIN DEL BLOQUE CORRECTO ---
 
-        # 4. CRITERIO JURÍDICO ESTRATÉGICO (Impacto de Firma)
+        # 8. CRITERIO JURÍDICO ESTRATÉGICO (Recuperado íntegramente)
         pdf.ln(10)
         pdf.set_font(fuente_usar, "B", 12)
-        pdf.set_text_color(184, 134, 11) # Oro
-        pdf.cell(180, 8, "III. CONSIDERACIONES LEGALES Y CRITERIO ESTRATÉGICO", ln=True)
+        pdf.set_text_color(184, 134, 11)
+        pdf.cell(180, 8, "III. CONSIDERACIONES LEGALES Y CRITERIO ESTRATEGICO", ln=True)
         pdf.set_font(fuente_usar, "", 10)
         pdf.set_text_color(0, 0, 0)
         
         criterio_experto = (
-            "Este análisis se fundamenta en protocolos de debida diligencia intensificada (DDI) y la Ley 8204. "
-            "Los indicadores detectados sugieren una exposición de riesgo que exige una correlación probatoria "
-            "inmediata ante la Sección de Delitos Económicos y Financieros. El incumplimiento de estas validaciones "
-            "podría derivar en responsabilidades penales administrativas por omisión de control. "
-            "Este dictamen constituye una alerta temprana de inteligencia legal bajo el sello de Jarquín Legal Services."
+            "Este analisis se fundamenta en protocolos de debida diligencia intensificada (DDI) y la Ley 8204. "
+            "Los indicadores detectados sugieren una exposicion de riesgo que exige una correlacion probatoria "
+            "inmediata ante la Seccion de Delitos Economicos y Financieros. El incumplimiento de estas validaciones "
+            "podria derivar en responsabilidades penales administrativas por omision de control. "
+            "Este dictamen constituye una alerta temprana de inteligencia legal bajo el sello de Jarquin Legal Services."
         )
         pdf.multi_cell(180, 6, criterio_experto)
         pdf.ln(10)
 
-        # # FINAL DEL BLOQUE: Generación del PDF (Limpio y sin errores de codificación)
+        # FINAL: Generación del PDF
         pdf_output = pdf.output(dest='S')
-        # Convertimos a bytes si es necesario para Streamlit
         return bytes(pdf_output) if isinstance(pdf_output, bytearray) else pdf_output
 
     except Exception as e:
