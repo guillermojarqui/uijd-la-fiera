@@ -243,18 +243,22 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
         pdf = DictamenPremium()
         pdf.set_auto_page_break(auto=True, margin=15)
         pdf.set_margins(left=15, top=15, right=15)
-        pdf.add_page()  # <--- ESTA ES LA LÍNEA QUE FALTA
+        fuente_usar = "Helvetica"
+        # --- ESTA ES LA LÍNEA QUE FALTA ---
+         
+        
+        pdf.add_page()
         # 1. FONDO PROFESIONAL (Color Crema Marfil)
         pdf.set_fill_color(253, 252, 248)
         pdf.rect(0, 0, 210, 297, 'F')
 
-        # 2. ENCABEZADO CON IUSTITIA REUBICADA (A la derecha para no estorbar)
+        # 2. ENCABEZADO CON IUSTITIA REUBICADA
         if os.path.exists("lustitia.jpg"):
             pdf.image("lustitia.jpg", x=165, y=12, w=35) 
         
         # 3. IDENTIDAD CORPORATIVA
-        pdf.set_font(fuente_usar, "B", 15)
-        pdf.set_text_color(20, 40, 80) # Azul Oxford Profesional
+        pdf.set_font(fuente_usar, "B", 15) # Aquí ya no dará error porque definimos fuente_usar arriba
+        pdf.set_text_color(20, 40, 80) 
         pdf.cell(180, 10, "JARQUIN LEGAL SERVICES & AI SOLUTIONS", ln=True)
         pdf.set_font(fuente_usar, "", 9)
         pdf.set_text_color(100, 100, 100) # Gris elegante
