@@ -314,14 +314,26 @@ def generar_pdf_premium(objetivo, resultados, datos_registro=None):
                 
                 # USAMOS VARIABLE DE SEGURIDAD (Línea 315 corregida)
                 pdf.set_font(fuente_usar, "", 10)
-                # --- RENDERIZADO DE HALLAZGOS CON ESPACIADO ---
-            pdf.set_text_color(30, 30, 30) 
-            pdf.set_font(fuente_usar, "", 10)
-            if "http" in contenido_limpio:
-                pdf.set_text_color(0, 50, 150) # Azul para links
-            pdf.multi_cell(180, 7, f"• {contenido_limpio}", border=0)
-            pdf.ln(4) # Espacio entre cada punto
-            pdf.set_text_color(0, 0, 0)
+                # --- RENDERIZADO DE HALLAZGOS SEGURO ---
+            for h in hallazgos:
+                import unicodedata
+                # Extraemos y limpiamos el contenido de forma agresiva para evitar errores
+                contenido = h.get('dato', '')
+                # Eliminamos acentos y caracteres raros que rompen el PDF
+                contenido_seguro = unicodedata.normalize('NFKD', contenido).encode('ascii', 'ignore').decode('ascii')
+                
+                pdf.set_text_color(30, 30, 30) 
+                pdf.set_font(fuente_usar, "", 10)
+                
+                # Resaltamos links en azul si existen
+                if "http" in contenido_seguro:
+                    pdf.set_text_color(0, 50, 150) 
+                
+                # USAMOS UN GUION "-" EN VEZ DEL PUNTO "•" PARA EVITAR EL ERROR DE UNICODE
+                pdf.multi_cell(180, 7, f"- {contenido_seguro}", border=0)
+                
+                pdf.ln(4) # Espaciado de Alta Gama entre hallazgos
+                pdf.set_text_color(0, 0, 0)
             # --- FIN DEL BLOQUE CORRECTO ---
 
         # 4. CRITERIO JURÍDICO ESTRATÉGICO (Impacto de Firma)
