@@ -237,9 +237,11 @@ def ejecutar_barrido_completo(objetivo, progress_bar, status_text):
     return resultados
 
 def generar_pdf_premium(objetivo, resultados, datos_registro=None):
-    if datos_registro is None:
-        datos_registro = []
+    # ... inicialización ...
+    fuente_usar = "Helvetica" # <--- ESTO ES VITAL
     try:
+        # Intento de cargar fuentes externas...
+        # ...:
         pdf = DictamenPremium()
         pdf.set_auto_page_break(auto=True, margin=15)
         pdf.set_margins(left=15, top=15, right=15)
@@ -513,17 +515,17 @@ if st.button("INICIAR INVESTIGACION FORENSE", type="primary"):
 
             # Generar PDF con manejo de errores
             try:
-               pdf_bytes = generar_pdf_premium(objetivo, resultados, datos_rn)
-               col2.download_button(
-                    "Dictámen Ejecutivo",
+                pdf_bytes = generar_pdf_premium(objetivo, resultados, datos_rn)
+                col2.download_button(
+                    "Dictamen Ejecutivo",
                     data=pdf_bytes,
                     file_name=f"Dictamen_{objetivo}.pdf",
                     mime="application/pdf",
                     key=f"pdf_{unique_id}"
                 )
             except Exception as e:
-               st.error(f"Error al generar el PDF: {e}")
-               st.info("Intente nuevamente o exporte los datos a CSV.")
+                st.error(f"Error al generar el PDF: {e}")
+                st.info("Intente nuevamente o exporte los datos a CSV.")
 
 
 
