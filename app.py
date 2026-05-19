@@ -366,8 +366,7 @@ with col2:
 st.markdown("---")
 objetivo = st.text_input("Ingrese nombre completo, cedula o razon social:", placeholder="Ej: Ruben Pacheco Lutz")
 
-# ================= BLOQUE DE EJECUCIÓN Y DASHBOARD PERSISTENTE =================
-
+# ================= LÓGICA DE PROCESAMIENTO (EL BOTÓN) =================
 if st.button("INICIAR INVESTIGACION FORENSE", type="primary"):
     if objetivo and len(objetivo.strip()) >= 3:
         status_text = st.empty()
@@ -382,13 +381,15 @@ if st.button("INICIAR INVESTIGACION FORENSE", type="primary"):
             st.session_state["resultados"] = resultados
             st.session_state["datos_rn"] = datos_rn
             st.session_state["objetivo_buscado"] = objetivo
+            st.session_state["investigacion_activa"] = True
             
         progress_bar.empty()
         status_text.empty()
-        st.rerun()  # Forzamos recarga para activar el dibujado del dashboard
+        st.rerun()  # Forzamos recarga para activar el renderizado del dashboard
 
-# --- RENDERIZADO DEL DASHBOARD (Se ejecuta siempre que existan resultados en memoria) ---
-if "resultados" in st.session_state:
+# ================= DASHBOARD PERSISTENTE (FUERA DEL BOTÓN) =================
+# Esta condición se mantiene verdadera aunque se descargue el PDF
+if st.session_state.get("investigacion_activa"):
     resultados = st.session_state["resultados"]
     objetivo_buscado = st.session_state["objetivo_buscado"]
     datos_rn = st.session_state["datos_rn"]
@@ -422,110 +423,73 @@ if "resultados" in st.session_state:
             )
         
         with st.expander("¿Cómo se calcula?"):
-            st.markdown("""
-            - **ICIJ Offshore Leaks** (peso 35) | **Jurisdicciones Opacas** (peso 25)
-            - **Prensa y Riesgo** (peso 20) | **Hacienda** (peso 10) | **PGR/SCIJ** (peso 10)
-            """)
+            st.markdown("- **ICIJ** (35) | **Opacas** (25) | **Prensa** (20) | **Hacienda** (10) | **PGR** (10)")
 
         # --- NAVEGACIÓN POR TABS ---
         tabs = st.tabs(list(resultados.keys()) + ["ICIJ", "Entidades", "Registro Manual"])
         
-        # Capas Dinámicas
         for i, (capa, hallazgos) in enumerate(resultados.items()):
             with tabs[i]:
                 if not hallazgos:
-                    st.info("Sin hallazgos en esta capa.")
+                    st.info("Sin hallazgos.")
                 else:
                     for h in hallazgos:
                         with st.expander(f"🔍 {h['titulo'][:80]}..."):
                             st.markdown(f"**Fuente:** [Enlace Directo]({h['fuente']})")
                             st.markdown(f"**Hallazgo:** {h['dato']}")
 
-        # Tab ICIJ
-        with tabs[len(resultados)]:
-            st.subheader("ICIJ - Offshore Leaks Search")
-            icij_results = buscar_en_icij(objetivo_buscado)
-            if icij_results:
-                st.dataframe(pd.DataFrame(icij_results))
-            else:
-                st.info("No se detectaron vínculos directos en Offshore Leaks.")
+        with tabs[len(resultados)]: # Tab ICIJ
+            icij_res = buscar_en_icij(objetivo_buscado)
+            if icij_res: st.dataframe(pd.DataFrame(icij_res))
+            else: st.info("Sin coincidencias en Offshore Leaks.")
 
-        # Tab Entidades Extraídas
-        with tabs[len(resultados)+1]:
-            st.subheader("Entidades Detectadas por IA")
+        with tabs[len(resultados)+1]: # Tab Entidades
             texto_full = " ".join([h['dato'] for c in resultados for h in resultados[c]])
             cedulas, nombres, empresas = extraer_cedulas(texto_full), extraer_nombres_personas(texto_full), extraer_empresas(texto_full)
-            
-            c_e1, c_e2, c_e3 = st.columns(3)
-            with c_e1: 
+            c1, c2, c3 = st.columns(3)
+            with c1: 
                 st.write("**Cédulas:**")
                 for c in cedulas: st.code(c)
-            with c_e2:
+            with c2:
                 st.write("**Personas:**")
                 for n in nombres: st.code(n)
-            with c_e3:
+            with c3:
                 st.write("**Empresas:**")
                 for e in empresas: st.code(e)
 
-        # Tab Registro Manual
-        with tabs[len(resultados)+2]:
-            st.subheader("Registro Nacional (Carga Manual)")
+        with tabs[len(resultados)+2]: # Registro Manual
+            st.subheader("Bitácora de Registro Nacional")
             archivo_csv = "datos_registro_manual.csv"
             if os.path.exists(archivo_csv):
                 st.dataframe(pd.read_csv(archivo_csv, encoding='utf-8-sig'))
             
-            entidades_pendientes = list(cedulas) + list(nombres) + list(empresas)
-            for ent in entidades_pendientes[:5]: # Limitado a 5 para no saturar
+            entidades_pend = list(cedulas) + list(nombres) + list(empresas)
+            for ent in entidades_pend[:5]:
                 with st.expander(f"Registrar: {ent}"):
                     n_man = st.text_input("Nombre Real", key=f"n_{ent}")
-                    e_man = st.selectbox("Estado", ["", "AL DÍA", "MOROSA", "EN LIQUIDACIÓN"], key=f"e_{ent}")
-                    obs_man = st.text_area("Notas", key=f"o_{ent}")
-                    if st.button("Guardar en Bitácora", key=f"b_{ent}"):
-                        # Lógica de guardado CSV ya definida en tu código
+                    e_man = st.selectbox("Estado", ["", "AL DÍA", "MOROSA"], key=f"e_{ent}")
+                    if st.button("Guardar", key=f"b_{ent}"):
                         st.success("Guardado localmente.")
 
-        # --- BOTONES DE DESCARGA (Final del Dashboard) ---
+        # --- BOTONES DE DESCARGA (ZONA DE ALTA TENSIÓN) ---
         st.markdown("---")
         col_d1, col_d2 = st.columns(2)
         
         with col_d1:
-            # Creamos el DataFrame usando los nombres de variables correctos
             df_export = pd.DataFrame(
-                [
-                    {
-                        "Capa": capa_nombre, 
-                        "Título": h['titulo'], 
-                        "Fuente": h['fuente'], 
-                        "Dato": h['dato']
-                    }
-                    for capa_nombre, hallazgos_lista in resultados.items() 
-                    for h in hallazgos_lista
-                ]
+                [{"Capa": cn, "Título": h['titulo'], "Fuente": h['fuente'], "Dato": h['dato']}
+                 for cn, hl in resultados.items() for h in hl]
             )
-            
             csv_buf = io.BytesIO()
-            # Guardamos con codificación para Excel (utf-8-sig)
             df_export.to_csv(csv_buf, index=False, encoding='utf-8-sig')
-            st.download_button(
-                label="Descargar Datos (CSV)", 
-                data=csv_buf.getvalue(), 
-                file_name=f"LaFiera_{objetivo_buscado}.csv", 
-                mime="text/csv",
-                key="btn_csv_persistente"
-            )
+            st.download_button("Descargar CSV", data=csv_buf.getvalue(), file_name=f"Fiera_{objetivo_buscado}.csv", key="csv_final")
 
         with col_d2:
             try:
                 pdf_output = generar_pdf_premium(objetivo_buscado, resultados, datos_rn)
-                st.download_button(
-                    label="📥 Descargar Dictamen de Alta Gama",
-                    data=pdf_output,
-                    file_name=f"Dictamen_{objetivo_buscado}.pdf",
-                    mime="application/pdf",
-                    key="btn_pdf_persistente"
-                )
+                st.download_button("📥 Descargar Dictamen Premium", data=pdf_output, file_name=f"Dictamen_{objetivo_buscado}.pdf", key="pdf_final")
             except Exception as e:
-                st.error(f"Error en generación de PDF: {e}")
+                st.error(f"Error PDF: {e}")
 
 
 
